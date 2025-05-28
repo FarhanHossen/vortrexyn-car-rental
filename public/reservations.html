@@ -10,14 +10,14 @@
   
   <!-- Blurred Background -->
   <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
-       style="background-image: url('../assets/bg4.png');"></div>
+       style="background-image: url('assets/bg4.png');"></div>
 
   <!-- Header -->
   <div class="relative z-50">
     <header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur">
       <div class="flex items-center gap-4">
         <a href="home.html">
-          <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+          <img src="assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
         </a>
       </div>
     </header>
@@ -82,7 +82,7 @@
     }
 
     if (car) {
-      document.getElementById('carImage').src = car.image || '../assets/default-car.jpg';
+      document.getElementById('carImage').src = car.image || 'assets/default-car.jpg';
       document.getElementById('brand').textContent = car.brand;
       document.getElementById('model').textContent = car.carModel;
       document.getElementById('carType').textContent = car.carType;
