@@ -10,7 +10,7 @@
 
   <!-- Background -->
   <div class="fixed inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
-    style="background-image: url('assets/bg3.png');"></div>
+    style="background-image: url('../assets/bg3.png');"></div>
 
 
   <div class="relative z-10">
@@ -18,7 +18,7 @@
     <header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur">
       <div class="flex items-center gap-4">
         <a href="home.html">
-          <img src="assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+          <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
         </a>
       </div >
     <h1 class="absolute left-1/2 transform -translate-x-1/2 text-3xl font-extrabold tracking-widest"
@@ -26,7 +26,7 @@
       VORTREXYN
     </h1>
     <div class="text-base space-x-6">
-      <a href="index.html" class="text-red-700 hover:underline font-semibold" style="color: rgba(247, 55, 79, 1);">Logout</a>
+      <a href="../index.html" class="text-red-700 hover:underline font-semibold" style="color: rgba(247, 55, 79, 1);">Logout</a>
       <a href="myReservations.html" class="hover:underline font-semibold" style="color: rgba(88,214,141,1);">My Reservations</a>
     </div>
 </header>
@@ -53,7 +53,7 @@
     const suggestions = document.getElementById('suggestions');
     const lastClickedCar = JSON.parse(localStorage.getItem('selectedCar'));
 
-    fetch('data/cars.json')
+    fetch('../data/cars.json')
       .then(res => res.json())
       .then(data => {
         allCars = data.cars;
