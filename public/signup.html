@@ -10,7 +10,7 @@
 
   <!-- Background Image with Blur -->
   <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
-    style="background-image: url('../assets/bg1.png');"></div>
+    style="background-image: url('assets/bg1.png');"></div>
 
   <!-- Signup Box Foreground -->
   <div class="relative z-10 max-w-md w-full px-4">
@@ -18,7 +18,7 @@
 
       <!-- Logo & Heading -->
       <div class="text-center">
-        <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-40 mx-auto mb-6" />
+        <img src="assets/logo.png" alt="VORTREXYN Logo" class="h-40 mx-auto mb-6" />
         <h1 class="text-2xl font-bold tracking-widest" style="color: rgba(255, 251, 202, 1);">SIGN UP</h1>
         <p class="text-sm tracking-widest" style="color: rgba(255, 251, 202, 1);">Create a new account</p>
       </div>
@@ -66,7 +66,7 @@
 
         <div class="text-center text-sm font-semibold">
           <span style="color: rgba(255, 251, 202, 1);">Already have an account?</span>
-          <a href="../index.html" class="hover:underline font-semibold" style="color: rgba(247, 55, 79, 1);">Login</a>
+          <a href="index.html" class="hover:underline font-semibold" style="color: rgba(247, 55, 79, 1);">Login</a>
         </div>
       </form>
     </div>
@@ -146,7 +146,7 @@
         })
         .then(() => {
           alert("Account created and saved to Firestore!");
-          window.location.href = "../index.html";
+          window.location.href = "index.html";
         })
         .catch(error => {
           alert("Signup failed: " + error.message);
