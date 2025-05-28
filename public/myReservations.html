@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Reservations</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 min-h-screen text-white p-6">
+
+  <!-- Blurred Background Image -->
+<div class="fixed inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+     style="background-image: url('../assets/bg4.png');"></div>
+
+<div class="relative z-10">
+  <!-- Fixed Header -->
+<header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur border-b border-blue-700">
+  <div class="flex items-center gap-4">
+    <a href="index.html">
+      <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+    </a>
+  </div>
+  <h1 class="absolute left-1/2 transform -translate-x-1/2 text-3xl font-extrabold tracking-widest text-yellow-100">VORTREXYN</h1>
+  <div class="text-base space-x-6">
+    <a href="index.html" class="text-red-400 hover:underline font-semibold">← Back to Home</a>
+  </div>
+</header>
+
+  <!-- Reservation Grid -->
+  <div id="reservationList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+  <!-- Script -->
+  <script>
+    const reservationList = document.getElementById("reservationList");
+    const data = JSON.parse(localStorage.getItem("orders") || '{"orders": []}');
+    const allCars = JSON.parse(localStorage.getItem("cars") || "[]");
+
+    if (data.orders.length === 0) {
+      reservationList.innerHTML = "<p class='text-red-300'>No reservations found.</p>";
+    } else {
+      data.orders.forEach((r, index) => {
+        // Try to find car details from car list
+        const car = r.car;
+
+        const div = document.createElement("div");
+        div.className = "bg-white bg-opacity-10 backdrop-blur-md p-4 rounded-xl shadow-md space-y-2";
+
+        div.innerHTML = `
+          <h2 class="text-lg font-semibold text-yellow-100">Reservation #${index + 1}</h2>
+          <img src="${r.car.image || 'assets/default-car.jpg'}" alt="${r.car.carModel}" class="w-full h-40 object-cover rounded-t-xl" />
+          ${car ? `<p><strong>Car:</strong> ${car.brand} ${car.carModel}</p>` : ""}
+          <p><strong>Name:</strong> ${r.customer.name}</p>
+          <p><strong>Email:</strong> ${r.customer.email}</p>
+          <p><strong>License:</strong> ${r.customer.driversLicenseNumber}</p>
+          <p><strong>Start Date:</strong> ${r.rental.startDate}</p>
+          <p><strong>Days:</strong> ${r.rental.rentalPeriod}</p>
+          <p><strong>Total Price:</strong> $${r.rental.totalPrice}</p>
+          <p class="text-sm text-blue-300"><strong>Booked On:</strong> ${r.rental.orderDate}</p>
+        `;
+
+        reservationList.appendChild(div);
+      });
+    }
+  </script>
+  </div>
+</body>
+</html>

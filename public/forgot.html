@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forgot Password | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+  <!-- Background Image with Blur -->
+  <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+    style="background-image: url('../assets/bg2.png');"></div>
+
+  <!-- Absolute Top-Right Link -->
+  <div class="absolute top-4 right-6 z-20 text-sm">
+    <a href="login.html" class="text-red-600 hover:underline font-bold">← Back to Login</a>
+  </div>
+
+  <!-- Box Foreground -->
+  <div class="relative z-10 max-w-md w-full px-4">
+    <div class="rounded-xl bg-transparent shadow-[0_12px_32px_rgba(0,0,0,0.5)] text-white p-8 space-y-6">
+
+      <!-- Logo & Heading -->
+      <div class="text-center">
+        <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-40 mx-auto mb-6" />
+        <h1 class="text-2xl font-bold tracking-widest" style="color: rgba(255, 251, 202, 1);">FORGOT PASSWORD</h1>
+        <p class="text-sm tracking-widest" style="color: rgba(255, 251, 202, 1);">Enter your email to reset password</p>
+      </div>
+
+      <!-- Form -->
+      <form id="forgotForm" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm mb-1" style="color: rgba(255, 251, 202, 1);">Email Address</label>
+          <input id="email" type="email" required
+            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="you@example.com" />
+          <small id="emailError" class="text-red-600 hidden">Please enter a valid email</small>
+        </div>
+
+        <button type="submit"
+          class="w-full py-2 rounded font-bold transition"
+          style="background-color: rgba(255, 251, 202, 1); color: rgba(42, 0, 78, 1);">
+          Send Reset Link
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Validation & Password Reset Logic -->
+  <script>
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    document.getElementById('forgotForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const emailError = document.getElementById('emailError');
+      emailError.classList.add('hidden');
+
+      if (!emailRegex.test(email)) {
+        emailError.classList.remove('hidden');
+        return;
+      }
+
+      // Check if email exists in Firestore first
+      db.collection("users").where("email", "==", email).get()
+        .then(querySnapshot => {
+          if (querySnapshot.empty) {
+            alert("No account found with that email.");
+          } else {
+            return auth.sendPasswordResetEmail(email);
+          }
+        })
+        .then(() => {
+          alert("Reset link sent! Check your email.");
+        })
+        .catch(error => {
+          alert("Error: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORTREXYN | Car Rental Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 min-h-screen text-white">
+
+  <!-- Background -->
+  <div class="fixed inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+    style="background-image: url('../assets/bg3.png');"></div>
+
+
+  <div class="relative z-10">
+    <!-- Header -->
+    <header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur">
+      <div class="flex items-center gap-4">
+        <a href="index.html">
+          <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+        </a>
+      </div >
+    <h1 class="absolute left-1/2 transform -translate-x-1/2 text-3xl font-extrabold tracking-widest"
+      style="color: rgba(255, 251, 202, 1);">
+      VORTREXYN
+    </h1>
+    <div class="text-base space-x-6">
+      <a href="login.html" class="text-red-700 hover:underline font-semibold" style="color: rgba(236,112,99,1);">Logout</a>
+      <a href="myReservations.html" class="hover:underline font-semibold" style="color: rgba(88,214,141,1);">My Reservations</a>
+    </div>
+</header>
+
+    <!-- Main Section -->
+    <main class="p-6">
+      <div class="relative mb-6">
+        <input id="searchInput" type="text"
+          placeholder="Search by brand, type, model, description..."
+          class="w-full max-w-md px-4 py-2 rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 text-black" />
+        <ul id="suggestions" class="absolute z-20 bg-white text-black rounded shadow w-full max-w-md mt-1 hidden"></ul>
+      </div>
+
+      <h2 class="text-xl font-semibold mb-4" style="color: rgba(255, 251, 202, 1);">Available Cars</h2>
+      <div id="carGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </main>
+  </div>
+
+  <!-- JS -->
+  <script>
+    let allCars = [];
+    const carGrid = document.getElementById('carGrid');
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
+    const lastClickedCar = JSON.parse(localStorage.getItem('selectedCar'));
+
+    fetch('../data/cars.json')
+      .then(res => res.json())
+      .then(data => {
+        allCars = data.cars;
+        localStorage.setItem('cars', JSON.stringify(allCars));
+        renderCars(allCars);
+      })
+      .catch(err => {
+        console.error('Error loading cars:', err);
+        carGrid.innerHTML = `<p class="text-red-400">Failed to load cars.</p>`;
+      });
+
+    function renderCars(cars) {
+      carGrid.innerHTML = '';
+      cars.forEach((car, index) => {
+        const isLastClicked = lastClickedCar && lastClickedCar.vin === car.vin;
+        const card = document.createElement('div');
+        card.className = `carCard cursor-pointer bg-gradient-to-br from-gray-900 to-blue-900 shadow-lg overflow-hidden hover:ring-2 hover:ring-blue-400 transition relative rounded-xl`;
+        card.dataset.index = index;
+
+        card.innerHTML = `
+          ${isLastClicked ? `<span class="absolute top-2 left-2 bg-yellow-300 text-black text-xs px-2 py-1 rounded">Recently Viewed</span>` : ''}
+          <img src="${car.image || 'assets/default-car.jpg'}" alt="${car.carModel}" class="w-full h-52 object-cover" />
+          <div class="p-4">
+            <h3 class="text-xl font-bold mb-1" style="color: rgba(255, 251, 202, 1);">${car.brand} ${car.carModel}</h3>
+            <p class="text-sm" style="color: rgba(213,245,227,1);">Type: ${car.carType}</p>
+            <p class="text-sm" style="color: rgba(213,245,227,1);">Year: ${car.yearOfManufacture}</p>
+            <p class="text-sm mt-2 font-bold" style="color: rgba(93,173,226,1);">$${car.pricePerDay} per day</p>
+            </p>
+          </div>
+        `;
+
+        carGrid.appendChild(card);
+      });
+
+      // Click handler for whole card
+      document.querySelectorAll('.carCard').forEach(card => {
+        card.addEventListener('click', function () {
+          const index = parseInt(this.dataset.index);
+          const selectedCar = allCars[index];
+          localStorage.setItem('selectedCar', JSON.stringify(selectedCar));
+          window.location.href = 'reservations.html';
+        });
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+  const keyword = searchInput.value.toLowerCase();
+
+  const filtered = allCars.filter(car =>
+    car.carType.toLowerCase().includes(keyword) ||
+    car.brand.toLowerCase().includes(keyword) ||
+    car.carModel.toLowerCase().includes(keyword)
+  );
+  renderCars(filtered);
+
+  // Suggestions limited to brand, type, model only
+  const keywords = new Set();
+  allCars.forEach(car => {
+    [car.carType, car.brand, car.carModel].forEach(field => {
+      if (field.toLowerCase().includes(keyword)) {
+        keywords.add(field);
+      }
+    });
+  });
+
+  if (!keyword || keywords.size === 0) {
+    suggestions.classList.add('hidden');
+    suggestions.innerHTML = '';
+  } else {
+    suggestions.classList.remove('hidden');
+    suggestions.innerHTML = Array.from(keywords).slice(0, 5).map(k =>
+      `<li class="px-4 py-1 hover:bg-blue-100 cursor-pointer">${k}</li>`
+    ).join('');
+  }
+});
+
+// Apply filter on suggestion click
+suggestions.addEventListener('click', e => {
+  if (e.target.tagName === 'LI') {
+    const selected = e.target.textContent;
+    searchInput.value = selected;
+    suggestions.classList.add('hidden');
+
+    const filtered = allCars.filter(car =>
+      car.carType.toLowerCase().includes(selected.toLowerCase()) ||
+      car.brand.toLowerCase().includes(selected.toLowerCase()) ||
+      car.carModel.toLowerCase().includes(selected.toLowerCase())
+    );
+    renderCars(filtered);
+  }
+});
+
+// Pressing Enter applies search
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault(); // prevent form submit or page refresh
+    suggestions.classList.add('hidden');
+    const keyword = searchInput.value.toLowerCase();
+    const filtered = allCars.filter(car =>
+      car.carType.toLowerCase().includes(keyword) ||
+      car.brand.toLowerCase().includes(keyword) ||
+      car.carModel.toLowerCase().includes(keyword)
+    );
+    renderCars(filtered);
+  }
+});
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reservation | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="relative min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white">
+  
+  <!-- Blurred Background -->
+  <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+       style="background-image: url('../assets/bg4.png');"></div>
+
+  <!-- Header -->
+  <div class="relative z-50">
+    <header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur">
+      <div class="flex items-center gap-4">
+        <a href="index.html">
+          <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+        </a>
+      </div>
+    </header>
+  </div>
+
+  <!-- Reservation Box -->
+  <main class="relative z-10 pt-32 px-4">
+    <div class="max-w-3xl w-full mx-auto p-6 rounded-xl shadow-2xl backdrop-blur bg-white/10 space-y-6">
+
+      <!-- Car Info -->
+      <div id="carInfo" class="space-y-2">
+        <h2 class="text-2xl font-bold tracking-widest text-center text-yellow-100">Reservation Details</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <img id="carImage" src="" alt="Selected Car" class="w-full h-52 object-cover"/>
+          </div>
+          <div class="space-y-1" style="color: rgba(213,245,227,1);">
+            <p><strong>Brand:</strong> <span id="brand"></span></p>
+            <p><strong>Model:</strong> <span id="model"></span></p>
+            <p><strong>Type:</strong> <span id="carType"></span></p>
+            <p><strong>Fuel:</strong> <span id="fuelType"></span></p>
+            <p><strong>Year:</strong> <span id="year"></span></p>
+            <p><strong>Mileage:</strong> <span id="mileage"></span></p>
+            <p><strong>Price/Day:</strong> $<span id="pricePerDay"></span></p>
+            <p><strong>Description:</strong> <span id="description"></span></p>
+            <p><strong>In Store:</strong> <span id="inStore"></span></p>
+            <p class="text-sm mt-1 font-bold" id="available"
+              style="color: rgba(88,214,141,1);"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservation Form -->
+      <form id="reservationForm" class="space-y-4 mt-6 hidden">
+        <h3 class="text-xl font-semibold text-yellow-100">Your Information</h3>
+        <input type="text" id="name" placeholder="Full Name" required class="w-full p-2 rounded text-black" />
+        <input type="email" id="email" placeholder="Email Address" required class="w-full p-2 rounded text-black" />
+        <input type="text" id="license" placeholder="Driver’s License Number" required class="w-full p-2 rounded text-black" />
+        <input type="date" id="startDate" required class="w-full p-2 rounded text-black" />
+        <input type="number" id="days" placeholder="Number of Rental Days" required min="1" class="w-full p-2 rounded text-black" />
+        <p class="text-sm text-blue-100">Total: $<span id="totalPrice">0</span></p>
+        <button type="submit" class="w-full py-2 font-bold rounded hover:bg-yellow-300 transition" style="background-color: navy; color: rgba(255, 251, 202, 1);">
+          Confirm Reservation
+        </button>
+      </form>
+
+      <p id="notAvailableMsg" class="text-center text-red-400 text-sm hidden">Reservation is not available for this car.</p>
+
+    </div>
+  </main>
+
+  <!-- JS -->
+  <script>
+    const car = JSON.parse(localStorage.getItem('selectedCar'));
+
+    // Restore previous customer inputs
+    const savedCustomer = JSON.parse(localStorage.getItem('customerInfo'));
+    if (savedCustomer) {
+      document.getElementById('name').value = savedCustomer.name || '';
+      document.getElementById('email').value = savedCustomer.email || '';
+      document.getElementById('license').value = savedCustomer.license || '';
+    }
+
+    if (car) {
+      document.getElementById('carImage').src = car.image || '../assets/default-car.jpg';
+      document.getElementById('brand').textContent = car.brand;
+      document.getElementById('model').textContent = car.carModel;
+      document.getElementById('carType').textContent = car.carType;
+      document.getElementById('fuelType').textContent = car.fuelType;
+      document.getElementById('year').textContent = car.yearOfManufacture;
+      document.getElementById('mileage').textContent = car.mileage;
+      document.getElementById('pricePerDay').textContent = car.pricePerDay;
+      document.getElementById('description').textContent = car.description;
+      document.getElementById('inStore').textContent = car.inStore;
+      document.getElementById('available').textContent = car.available ? 'Available' : 'Not Available';
+      document.getElementById('available').style.color = car.available ? 'rgba(88,214,141,1)' : 'rgba(236,112,99,1)';
+
+      if (car.available) {
+        document.getElementById('reservationForm').classList.remove('hidden');
+      } else {
+        document.getElementById('notAvailableMsg').classList.remove('hidden');
+      }
+    } else {
+      document.getElementById('carInfo').innerHTML = "<p class='text-red-400'>No previously selected car found.</p>";
+      document.getElementById('reservationForm').style.display = 'none';
+    }
+
+    document.getElementById('days').addEventListener('input', () => {
+      const days = parseInt(document.getElementById('days').value);
+      const total = (car?.pricePerDay || 0) * (isNaN(days) ? 0 : days);
+      document.getElementById('totalPrice').textContent = total;
+    });
+
+    document.getElementById('reservationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const reservation = {
+        customer: {
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          phoneNumber: "",
+          driversLicenseNumber: document.getElementById('license').value
+        },
+        car: {
+          vin: car.vin,
+          brand: car.brand,
+          carModel: car.carModel,
+          carType: car.carType,
+          fuelType: car.fuelType,
+          yearOfManufacture: car.yearOfManufacture,
+          mileage: car.mileage,
+          pricePerDay: car.pricePerDay,
+          description: car.description,
+          image: car.image,
+          inStore: car.inStore
+        },
+        rental: {
+          startDate: document.getElementById('startDate').value,
+          rentalPeriod: parseInt(document.getElementById('days').value),
+          totalPrice: parseInt(document.getElementById('totalPrice').textContent),
+          orderDate: new Date().toISOString().split("T")[0]
+        }
+      };
+
+      // Save customer for reuse
+      const customerInfo = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        license: document.getElementById('license').value
+      };
+      localStorage.setItem('customerInfo', JSON.stringify(customerInfo));
+
+      localStorage.setItem('latestReservation', JSON.stringify(reservation));
+      window.location.href = "orderConfirmation.html";
+    });
+  </script>
+</body>
+</html>

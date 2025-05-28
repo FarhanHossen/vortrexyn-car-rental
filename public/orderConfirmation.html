@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Confirmation | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+</head>
+<body class="relative min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white">
+  
+  <!-- Background Blur -->
+  <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+    style="background-image: url('../assets/bg4.png');"></div>
+
+  <!-- Header -->
+  <div class="relative z-50">
+    <header class="relative flex items-center justify-between px-8 py-6 bg-opacity-30 backdrop-blur">
+      <div class="flex items-center gap-4">
+        <a href="index.html">
+          <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-16 hover:opacity-100 transition" />
+        </a>
+      </div>
+    </header>
+  </div>
+
+  <!-- Main Content -->
+  <main class="relative z-10 pt-28 px-4">
+    <div class="max-w-3xl w-full mx-auto p-6 rounded-xl shadow-2xl backdrop-blur bg-white/10 space-y-6">
+      <h2 class="text-2xl font-bold text-center text-yellow-100">Confirm Your Order</h2>
+
+      <div id="orderDetails" class="text-white space-y-2"></div>
+
+      <button id="confirmBtn"
+        class="w-full py-2 font-bold rounded hover:bg-yellow-300 transition" style="background-color: navy; color: rgba(255, 251, 202, 1);">
+        Confirm Order
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const reservation = JSON.parse(localStorage.getItem('latestReservation'));
+    if (!reservation) {
+      document.getElementById('orderDetails').innerHTML = "<p class='text-red-400'>No reservation data found.</p>";
+      document.getElementById('confirmBtn').style.display = "none";
+    } else {
+      const details = `
+        <p><strong>Name:</strong> ${reservation.customer.name}</p>
+        <p><strong>Email:</strong> ${reservation.customer.email}</p>
+        <p><strong>License No:</strong> ${reservation.customer.driversLicenseNumber}</p>
+        <p><strong>Car:</strong> ${reservation.car.brand} ${reservation.car.carModel}</p>
+        <p><strong>Start Date:</strong> ${reservation.rental.startDate}</p>
+        <p><strong>Rental Days:</strong> ${reservation.rental.rentalPeriod}</p>
+        <p><strong>Total Price:</strong> $${reservation.rental.totalPrice}</p>
+      `;
+      document.getElementById('orderDetails').innerHTML = details;
+    }
+
+    emailjs.init("T_E3Q6Fu5wJ5OmOMd"); // Replace with your actual public key
+
+    document.getElementById('confirmBtn').addEventListener('click', function () {
+      if (!reservation) return;
+
+      const templateParams = {
+  to_name: reservation.customer.name,
+  email: reservation.customer.email,
+  license: reservation.customer.driversLicenseNumber,
+  car_model: `${reservation.car.brand} ${reservation.car.carModel}`,
+  car_type: reservation.car.carType,
+  fuel: reservation.car.fuelType,
+  year: reservation.car.yearOfManufacture,
+  mileage: reservation.car.mileage,
+  price_per_day: reservation.car.pricePerDay,
+  start_date: reservation.rental.startDate,
+  rental_days: reservation.rental.rentalPeriod,
+  total: reservation.rental.totalPrice
+};
+
+
+      emailjs.send("service_29gwayk", "template_p5tesbb", templateParams) 
+        .then(() => {
+          // Save reservation to orders
+          let orders = JSON.parse(localStorage.getItem('orders') || '{"orders": []}');
+          orders.orders.push(reservation);
+          localStorage.setItem('orders', JSON.stringify(orders));
+
+          // Redirect
+          window.location.href = "myReservations.html";
+        })
+        .catch((error) => {
+          alert("Failed to send email: " + error.text);
+        });
+    });
+  </script>
+</body>
+</html>

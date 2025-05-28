@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+  <!-- Background Image -->
+  <div class="absolute inset-0 bg-cover bg-center filter blur-sm brightness-75 z-0"
+    style="background-image: url('../assets/bg.png');"></div>
+
+  <!-- Login Box -->
+  <div class="relative z-10 max-w-md w-full px-4">
+    <div class="rounded-xl bg-transparent shadow-[0_12px_32px_rgba(0,0,0,0.5)] text-white p-8 space-y-6">
+
+      <!-- Logo & Title -->
+      <div class="text-center">
+        <img src="../assets/logo.png" alt="VORTREXYN Logo" class="h-40 mx-auto mb-6" />
+        <h1 class="text-2xl font-bold tracking-widest" style="color: rgba(255, 251, 202, 1);">LOGIN</h1>
+        <p class="text-sm tracking-widest" style="color: rgba(255, 251, 202, 1);">Sign in to continue</p>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm mb-1 font-semibold" style="color: rgba(255, 251, 202, 1);">Email</label>
+          <input id="email" type="email" required
+            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-white"
+            placeholder="you@example.com" />
+          <small id="emailError" class="text-red-600 hidden font-semibold">No user found with this email</small>
+          <small id="emailRegexError" class="text-red-600 font-semibold">Please enter a valid email address</small>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm mb-1 font-semibold" style="color: rgba(255, 251, 202, 1);">Password</label>
+          <input id="password" type="password" required
+            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent text-white"
+            placeholder="********" />
+          <small id="passwordRegexError" class="text-red-600 font-semibold">Password must be 10 characters with symbols, numbers, and mixed case</small>
+          <small id="passwordAuthError" class="text-red-600 hidden font-semibold">Invalid Login Credentials</small>
+        </div>
+
+        <button type="submit"
+          class="w-full py-2 rounded font-bold transition"
+          style="background-color: rgba(255, 251, 202, 1); color: rgba(42, 0, 78, 1);">
+          Sign In
+        </button>
+
+        <div class="flex justify-between text-sm mt-2">
+          <a href="forgot.html" class="hover:underline font-semibold " style="color: rgba(247, 55, 79, 1);">Forgot Password?</a>
+          <a href="signup.html" class="hover:underline font-semibold" style="color: rgba(255, 251, 202, 1);">Create Account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Login Logic -->
+  <script>
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{10}$/;
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const emailRegexError = document.getElementById('emailRegexError')
+    const passwordRegexError = document.getElementById('passwordRegexError');
+    const passwordAuthError = document.getElementById('passwordAuthError');
+
+    passwordInput.addEventListener('input', () => {
+      if (!passwordRegex.test(passwordInput.value.trim())) {
+        passwordRegexError.classList.remove('hidden');
+      } else {
+        passwordRegexError.classList.add('hidden');
+      }
+      passwordAuthError.classList.add('hidden');
+    });
+
+    emailInput.addEventListener('input', () => {
+      if (!emailRegex.test(emailInput.value.trim())) {
+        emailRegexError.classList.remove('hidden');
+      } else {
+        emailRegexError.classList.add('hidden');
+      }
+      emailError.classList.add('hidden');
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      // Reset errors
+      emailError.classList.add('hidden');
+      passwordAuthError.classList.add('hidden');
+
+      if (!emailRegex.test(email)) {
+        emailRegexError.classList.remove('hidden');
+        return;
+      }
+
+      if (!passwordRegex.test(password)) {
+        passwordRegexError.classList.remove('hidden');
+        return;
+      }
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+
+          return db.collection("users").doc(uid).get();
+        })
+        .then(doc => {
+          if (!doc.exists) {
+            emailError.classList.remove('hidden');
+            return;
+          }
+
+          window.location.href = "index.html";
+        })
+        .catch(error => {
+          emailError.classList.add('hidden');
+          passwordAuthError.classList.add('hidden');
+
+          if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials') {
+            passwordAuthError.textContent = 'Invalid Login Credentials.';
+            passwordAuthError.classList.remove('hidden');
+          } else if (error.code === 'auth/user-not-found') {
+            emailError.textContent = 'No account found with this email.';
+            emailError.classList.remove('hidden');
+          } else {
+            passwordAuthError.textContent = 'Something went wrong. Please try again.';
+            passwordAuthError.classList.remove('hidden');
+          }
+        });
+      });
+  </script>
+</body>
+</html>
