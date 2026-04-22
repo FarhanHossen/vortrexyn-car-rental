@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User profiles — owner only, admin can read all
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.token.email == 'vortrexyn.madmax@gmail.com';
+    }
+
+    // Pending orders — one doc per user (temp, cleared after confirmation)
+    match /pendingOrders/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Confirmed orders — users can create/read/update/delete their own; admin can do all
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read:   if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.auth.token.email == 'vortrexyn.madmax@gmail.com');
+      allow update: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.auth.token.email == 'vortrexyn.madmax@gmail.com');
+      allow delete: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.auth.token.email == 'vortrexyn.madmax@gmail.com');
+    }
+
+    // Fleet stock overrides — any authenticated user can read and write
+    // (bookings and cancellations update stock; admin also adjusts via dashboard)
+    match /fleetOverrides/{doc} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Custom cars added by admin — anyone authenticated can read; only admin can write/delete
+    match /customCars/{docId} {
+      allow read: if request.auth != null;
+      allow write, delete: if request.auth != null &&
+        request.auth.token.email == 'vortrexyn.madmax@gmail.com';
+    }
+  }
+}

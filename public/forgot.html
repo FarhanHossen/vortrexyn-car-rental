@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #06060f;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Left panel car float ── */
+    @keyframes carFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-14px); }
+    }
+
+    /* ── Logo continuous animations ── */
+    @keyframes loginGlowBreath {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(212,175,55,0.25)); }
+      50%       { filter: drop-shadow(0 0 16px rgba(212,175,55,1)) drop-shadow(0 0 30px rgba(212,175,55,0.5)); }
+    }
+    @keyframes hexRingSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes vMarkPulse {
+      0%, 100% { stroke-opacity: 0.75; }
+      50%       { stroke-opacity: 1; }
+    }
+    @keyframes speedShimmer {
+      from { opacity: 0.1; }
+      to   { opacity: 0.95; }
+    }
+
+    #page-logo {
+      overflow: visible;
+      animation: loginGlowBreath 3s ease-in-out infinite;
+    }
+    #page-logo .hex-outer {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: hexRingSpin 10s linear infinite;
+    }
+    #page-logo .v-mark {
+      animation: vMarkPulse 3s ease-in-out 0.5s infinite;
+    }
+    #page-logo .sl-a { animation: speedShimmer 1.8s ease-in-out infinite alternate; }
+    #page-logo .sl-b { animation: speedShimmer 1.8s ease-in-out 0.3s infinite alternate; }
+    #page-logo .sl-c { animation: speedShimmer 1.8s ease-in-out 0.6s infinite alternate; }
+    #page-logo .sl-d { animation: speedShimmer 1.8s ease-in-out 0.9s infinite alternate-reverse; }
+    #page-logo .sl-e { animation: speedShimmer 1.8s ease-in-out 1.2s infinite alternate-reverse; }
+    #page-logo .sl-f { animation: speedShimmer 1.8s ease-in-out 1.5s infinite alternate-reverse; }
+
+    /* ── Inputs ── */
+    .fp-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .fp-input-icon {
+      position: absolute;
+      left: 14px;
+      pointer-events: none;
+    }
+    .fp-input {
+      width: 100%;
+      padding: 13px 16px 13px 44px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(212,175,55,0.22);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .fp-input::placeholder { color: rgba(255,255,255,0.2); }
+    .fp-input:focus {
+      border-color: rgba(212,175,55,0.65);
+      background: rgba(212,175,55,0.05);
+    }
+
+    /* ── Button ── */
+    .fp-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 20px;
+      background: linear-gradient(135deg, #D4AF37, #F5D060);
+      border: none;
+      border-radius: 8px;
+      color: #06060f;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .fp-btn:hover  { opacity: 0.9; transform: translateY(-1px); }
+    .fp-btn:active { transform: translateY(0); }
+    .fp-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Inline messages ── */
+    .fp-error {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.7rem;
+      color: rgba(247,55,79,1);
+      font-weight: 600;
+    }
+    .fp-error.hidden { display: none; }
+
+    /* ── Success state ── */
+    #success-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 8px 0;
+    }
+    #success-state.show { display: flex; }
+
+    /* Success icon pulse */
+    @keyframes successPop {
+      0%   { transform: scale(0.5); opacity: 0; }
+      70%  { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-icon { animation: successPop 0.5s cubic-bezier(0.23,1,0.32,1) forwards; }
+
+    /* ── Left panel step badges ── */
+    .step-badge {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,175,55,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #D4AF37;
+      margin-top: 2px;
+    }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+</head>
+<body>
+  <div style="display:flex; min-height:100vh;">
+
+    <!-- ══ LEFT PANEL ══ -->
+    <div class="hidden lg:flex lg:w-7/12 relative overflow-hidden flex-col">
+
+      <!-- Background -->
+      <div class="absolute inset-0"
+        style="background-image:url('../assets/bg4.png'); background-size:cover; background-position:center;"></div>
+
+      <!-- Overlay -->
+      <div class="absolute inset-0"
+        style="background:linear-gradient(135deg,rgba(6,6,15,0.93) 0%,rgba(6,6,15,0.5) 55%,rgba(6,6,15,0.9) 100%);"></div>
+
+      <!-- Gold grid -->
+      <div class="absolute inset-0 opacity-5"
+        style="background-image:linear-gradient(rgba(212,175,55,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,0.4) 1px,transparent 1px); background-size:60px 60px;"></div>
+
+      <!-- Vertical accent -->
+      <div class="absolute right-0 top-0 bottom-0 w-px"
+        style="background:linear-gradient(to bottom,transparent,rgba(212,175,55,0.5) 30%,rgba(212,175,55,0.5) 70%,transparent);"></div>
+
+      <!-- Content -->
+      <div style="position:relative; z-index:10; display:flex; flex-direction:column; justify-content:space-between; height:100%; padding:3.5rem;">
+
+        <!-- Top badge -->
+        <div>
+          <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 16px; border-radius:999px; border:1px solid rgba(212,175,55,0.5); background:rgba(212,175,55,0.07);">
+            <span style="width:8px;height:8px;border-radius:50%;background:#D4AF37;display:inline-block;"></span>
+            <span style="font-family:'Rajdhani',sans-serif; color:#D4AF37; font-size:0.65rem; letter-spacing:0.35em; font-weight:700;">ACCOUNT RECOVERY</span>
+          </div>
+        </div>
+
+        <!-- Middle -->
+        <div>
+          <p style="font-size:0.65rem; color:rgba(212,175,55,0.6); letter-spacing:0.4em; margin-bottom:16px; text-transform:uppercase;">Back on the road in minutes</p>
+          <h1 style="font-family:'Rajdhani',sans-serif; font-size:3.2rem; font-weight:700; line-height:1.05; color:#fff;">
+            LOST ACCESS?<br><span style="color:#D4AF37;">WE'VE GOT YOU.</span>
+          </h1>
+          <p style="margin-top:20px; font-size:0.875rem; line-height:1.7; color:rgba(255,255,255,0.42); max-width:340px;">
+            Resetting your password is quick and secure. Follow the three simple steps and you'll be behind the wheel again.
+          </p>
+
+          <!-- Divider -->
+          <div style="margin:32px 0; display:flex; align-items:center; gap:16px;">
+            <div style="width:48px; height:1px; background:#D4AF37;"></div>
+            <div style="flex:1; height:1px; background:rgba(212,175,55,0.15);"></div>
+          </div>
+
+          <!-- Steps -->
+          <div style="display:flex; flex-direction:column; gap:22px;">
+            <div class="step-badge">
+              <div class="step-num">1</div>
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:700; color:#fff; letter-spacing:0.05em;">Enter your email</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.38); margin-top:2px;">The one linked to your VORTREXYN account</div>
+              </div>
+            </div>
+            <div class="step-badge">
+              <div class="step-num">2</div>
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:700; color:#fff; letter-spacing:0.05em;">Check your inbox</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.38); margin-top:2px;">We'll send a secure reset link instantly</div>
+              </div>
+            </div>
+            <div class="step-badge">
+              <div class="step-num">3</div>
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:700; color:#fff; letter-spacing:0.05em;">Set a new password</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.38); margin-top:2px;">Choose something strong and get back to driving</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom car -->
+        <div style="position:relative; margin-bottom:-2rem;">
+          <div style="position:absolute; inset:0; bottom:0; height:6rem;
+            background:linear-gradient(to top,rgba(6,6,15,1),transparent); z-index:1;"></div>
+          <img src="../assets/suv2.png" alt="SUV"
+            style="width:100%; object-fit:contain;
+              filter:drop-shadow(0 0 40px rgba(212,175,55,0.2)) drop-shadow(-10px -10px 30px rgba(6,6,15,0.7));
+              animation:carFloat 4.5s ease-in-out infinite;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RIGHT PANEL ══ -->
+    <div class="w-full lg:w-5/12 flex flex-col items-center justify-center"
+      style="background:#080814; min-height:100vh; position:relative; padding:3rem 2rem;">
+
+      <!-- Dot grid -->
+      <div style="position:absolute; inset:0; opacity:0.1;
+        background-image:radial-gradient(rgba(212,175,55,0.5) 1px,transparent 1px);
+        background-size:28px 28px; pointer-events:none;"></div>
+
+      <!-- Top bar -->
+      <div style="position:absolute; top:0; left:0; right:0; height:1px;
+        background:linear-gradient(to right,transparent,rgba(212,175,55,0.4),transparent);"></div>
+
+      <!-- Back link -->
+      <a href="../index.html"
+        style="position:absolute; top:24px; left:28px; display:inline-flex; align-items:center; gap:6px;
+          font-size:0.75rem; color:rgba(212,175,55,0.6); font-family:'Inter',sans-serif; text-decoration:none;
+          transition:color 0.2s; letter-spacing:0.05em;"
+        onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='rgba(212,175,55,0.6)'">
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+          <path d="M13 5l-5 5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Login
+      </a>
+
+      <div style="width:100%; max-width:360px; position:relative;">
+
+        <!-- Logo -->
+        <div style="text-align:center; margin-bottom:32px;">
+          <svg id="page-logo" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg"
+            style="height:80px; width:80px; display:block; margin:0 auto 10px;">
+            <defs>
+              <linearGradient id="goldGradFP" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#F5D060"/>
+                <stop offset="50%"  stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#A07C10"/>
+              </linearGradient>
+            </defs>
+            <polygon class="hex-outer" points="70,8 125,38 125,102 70,132 15,102 15,38"
+              fill="none" stroke="url(#goldGradFP)" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon points="70,18 116,44 116,96 70,122 24,96 24,44"
+              fill="rgba(212,175,55,0.07)"/>
+            <polyline class="v-mark" points="38,45 70,95 102,45"
+              fill="none" stroke="url(#goldGradFP)" stroke-width="9"
+              stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="sl-a" x1="24" y1="60" x2="42" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+            <line class="sl-b" x1="24" y1="70" x2="38" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+            <line class="sl-c" x1="24" y1="80" x2="35" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+            <line class="sl-d" x1="116" y1="60" x2="98" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+            <line class="sl-e" x1="116" y1="70" x2="102" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+            <line class="sl-f" x1="116" y1="80" x2="105" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div style="font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:#D4AF37; letter-spacing:0.22em;">VORTREXYN</div>
+          <div style="font-size:0.58rem; font-weight:600; color:rgba(212,175,55,0.55); letter-spacing:0.45em; text-transform:uppercase; margin-top:1px;">PREMIUM CAR RENTAL</div>
+          <div style="font-size:0.55rem; font-weight:300; color:rgba(255,255,255,0.22); letter-spacing:0.3em; text-transform:uppercase; margin-top:2px;">Drive Beyond Limits</div>
+        </div>
+
+        <!-- Divider -->
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px;">
+          <div style="flex:1; height:1px; background:rgba(212,175,55,0.18);"></div>
+          <span style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(212,175,55,0.55); letter-spacing:0.35em;">RESET PASSWORD</span>
+          <div style="flex:1; height:1px; background:rgba(212,175,55,0.18);"></div>
+        </div>
+
+        <!-- ── FORM STATE ── -->
+        <div id="form-state">
+          <p style="font-size:0.8rem; color:rgba(255,255,255,0.38); margin-bottom:22px; line-height:1.6;">
+            Enter the email address linked to your account and we'll send you a password reset link.
+          </p>
+
+          <form id="forgotForm" style="display:flex; flex-direction:column; gap:18px;">
+            <div>
+              <label for="email" style="display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.25em;
+                color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:6px;">Email Address</label>
+              <div class="fp-input-wrap">
+                <svg class="fp-input-icon" viewBox="0 0 20 20" fill="none" width="16" height="16">
+                  <path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z"
+                    stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2"/>
+                  <path d="M2.5 6l7.5 5.5L17.5 6" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input id="email" type="email" required class="fp-input"
+                  placeholder="you@example.com" autocomplete="email" />
+              </div>
+              <small id="emailError" class="fp-error hidden">Please enter a valid email address</small>
+              <small id="notFoundError" class="fp-error hidden">No account found with that email</small>
+              <small id="genericError" class="fp-error hidden">Something went wrong. Please try again.</small>
+            </div>
+
+            <button type="submit" id="submitBtn" class="fp-btn">
+              <span>SEND RESET LINK</span>
+              <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+                <path d="M3 10h14M11 4l6 6-6 6" stroke="#06060f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <div style="text-align:center; margin-top:4px;">
+              <a href="signup.html"
+                style="font-size:0.75rem; color:rgba(212,175,55,0.6); text-decoration:none; transition:color 0.2s;"
+                onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='rgba(212,175,55,0.6)'">
+                Don't have an account? Create one →
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- ── SUCCESS STATE ── -->
+        <div id="success-state">
+          <div class="success-icon">
+            <svg viewBox="0 0 64 64" fill="none" width="64" height="64">
+              <circle cx="32" cy="32" r="30" stroke="#D4AF37" stroke-width="2" stroke-opacity="0.3"/>
+              <circle cx="32" cy="32" r="30" stroke="#D4AF37" stroke-width="2"
+                stroke-dasharray="188" stroke-dashoffset="0"
+                style="animation:strokeDraw 0.8s ease forwards;"/>
+              <path d="M20 32l9 9 15-17" stroke="#D4AF37" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round"
+                style="stroke-dasharray:50; stroke-dashoffset:50; animation:strokeDraw 0.5s ease 0.6s forwards;"/>
+            </svg>
+          </div>
+
+          <div>
+            <h2 style="font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700; color:#fff; letter-spacing:0.08em; margin-bottom:8px;">
+              CHECK YOUR INBOX
+            </h2>
+            <p style="font-size:0.8rem; color:rgba(255,255,255,0.4); line-height:1.7;">
+              A reset link has been sent to<br>
+              <span id="sentEmailDisplay" style="color:#D4AF37; font-weight:600;"></span>
+            </p>
+            <p style="font-size:0.72rem; color:rgba(255,255,255,0.25); margin-top:10px;">
+              Didn't receive it? Check your spam folder or
+            </p>
+          </div>
+
+          <button id="resendBtn"
+            style="background:transparent; border:1px solid rgba(212,175,55,0.35); border-radius:8px;
+              color:rgba(212,175,55,0.8); font-family:'Rajdhani',sans-serif; font-size:0.8rem;
+              font-weight:700; letter-spacing:0.2em; padding:10px 24px; cursor:pointer;
+              transition:all 0.2s;"
+            onmouseover="this.style.borderColor='rgba(212,175,55,0.7)'; this.style.color='#D4AF37';"
+            onmouseout="this.style.borderColor='rgba(212,175,55,0.35)'; this.style.color='rgba(212,175,55,0.8)';">
+            RESEND EMAIL
+          </button>
+
+          <a href="../index.html"
+            style="font-size:0.75rem; color:rgba(255,255,255,0.3); text-decoration:none; margin-top:4px;
+              transition:color 0.2s;"
+            onmouseover="this.style.color='rgba(255,255,255,0.7)'"
+            onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            ← Return to Login
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- end split -->
+
+  <style>
+    @keyframes strokeDraw {
+      to { stroke-dashoffset: 0; }
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Logic -->
+  <script>
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const emailInput    = document.getElementById('email');
+    const emailError    = document.getElementById('emailError');
+    const notFoundError = document.getElementById('notFoundError');
+    const genericError  = document.getElementById('genericError');
+    const submitBtn     = document.getElementById('submitBtn');
+    const formState     = document.getElementById('form-state');
+    const successState  = document.getElementById('success-state');
+    const sentDisplay   = document.getElementById('sentEmailDisplay');
+    const resendBtn     = document.getElementById('resendBtn');
+
+    function clearErrors() {
+      emailError.classList.add('hidden');
+      notFoundError.classList.add('hidden');
+      genericError.classList.add('hidden');
+    }
+
+    function sendReset(email) {
+      submitBtn.disabled = true;
+      submitBtn.querySelector('span').textContent = 'SENDING…';
+      clearErrors();
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => {
+          sentDisplay.textContent = email;
+          formState.style.display = 'none';
+          successState.classList.add('show');
+        })
+        .catch(error => {
+          submitBtn.disabled = false;
+          submitBtn.querySelector('span').textContent = 'SEND RESET LINK';
+          if (error.code === 'auth/user-not-found') {
+            notFoundError.classList.remove('hidden');
+          } else {
+            genericError.classList.remove('hidden');
+          }
+        });
+    }
+
+    document.getElementById('forgotForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      clearErrors();
+      const email = emailInput.value.trim();
+      if (!emailRegex.test(email)) {
+        emailError.classList.remove('hidden');
+        return;
+      }
+      sendReset(email);
+    });
+
+    resendBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      if (email) sendReset(email);
+    });
+  </script>
+</body>
+</html>

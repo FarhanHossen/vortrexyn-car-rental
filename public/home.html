@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORTREXYN | Premium Car Rental</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:     #D4AF37;
+      --gold-lt:  #F5D060;
+      --gold-dk:  #A07C10;
+      --bg:       #06060f;
+      --bg2:      #080814;
+      --surface:  rgba(255,255,255,0.03);
+      --border:   rgba(212,175,55,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* ── LOGO ANIMATIONS ── */
+    @keyframes glowBreath  { 0%,100%{filter:drop-shadow(0 0 3px rgba(212,175,55,.25))} 50%{filter:drop-shadow(0 0 14px rgba(212,175,55,1)) drop-shadow(0 0 28px rgba(212,175,55,.5))} }
+    @keyframes hexSpin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes vPulse      { 0%,100%{stroke-opacity:.75} 50%{stroke-opacity:1} }
+    @keyframes shimmer     { from{opacity:.1} to{opacity:.95} }
+
+    #nav-logo { overflow:visible; animation:glowBreath 3s ease-in-out infinite; }
+    #nav-logo .hex-outer { transform-box:fill-box;transform-origin:center;animation:hexSpin 10s linear infinite; }
+    #nav-logo .v-mark    { animation:vPulse 3s ease-in-out .5s infinite; }
+    #nav-logo .sl-a { animation:shimmer 1.8s ease-in-out infinite alternate; }
+    #nav-logo .sl-b { animation:shimmer 1.8s ease-in-out .3s infinite alternate; }
+    #nav-logo .sl-c { animation:shimmer 1.8s ease-in-out .6s infinite alternate; }
+    #nav-logo .sl-d { animation:shimmer 1.8s ease-in-out .9s infinite alternate-reverse; }
+    #nav-logo .sl-e { animation:shimmer 1.8s ease-in-out 1.2s infinite alternate-reverse; }
+    #nav-logo .sl-f { animation:shimmer 1.8s ease-in-out 1.5s infinite alternate-reverse; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      height: 68px;
+      background: rgba(6,6,15,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-brand-text { line-height:1; }
+    .nav-brand-text .name { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--gold); letter-spacing:.2em; }
+    .nav-brand-text .sub  { font-size:.5rem; color:rgba(212,175,55,.5); letter-spacing:.45em; text-transform:uppercase; }
+
+    .nav-links { display:flex; align-items:center; gap:6px; }
+    .nav-link {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 14px; border-radius:7px;
+      font-size:.78rem; font-weight:600; text-decoration:none;
+      letter-spacing:.05em; transition:background .2s, color .2s;
+    }
+    .nav-link.reservations { color:rgba(255,255,255,.65); }
+    .nav-link.reservations:hover { background:rgba(255,255,255,.07); color:#fff; }
+    .nav-link.logout {
+      color:var(--bg2);
+      background:linear-gradient(135deg,var(--gold),var(--gold-lt));
+      font-family:'Rajdhani',sans-serif; letter-spacing:.1em;
+    }
+    .nav-link.logout:hover { opacity:.88; }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      position:relative; overflow:hidden;
+      padding: 52px 2rem 44px;
+      text-align:center;
+    }
+    .hero-bg {
+      position:absolute; inset:0;
+      background-image:url('../assets/bg3.png');
+      background-size:cover; background-position:center;
+    }
+    .hero-bg::after {
+      content:'';
+      position:absolute; inset:0;
+      background:linear-gradient(to bottom, rgba(6,6,15,.88) 0%, rgba(6,6,15,.72) 60%, rgba(6,6,15,1) 100%);
+    }
+    .hero-content { position:relative; z-index:1; }
+    .hero-tag {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:5px 16px; border-radius:999px;
+      border:1px solid rgba(212,175,55,.4);
+      background:rgba(212,175,55,.07);
+      font-size:.6rem; font-weight:700; color:var(--gold); letter-spacing:.35em;
+      margin-bottom:18px;
+    }
+    .hero-tag span { width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block; }
+    .hero h1 {
+      font-family:'Rajdhani',sans-serif;
+      font-size:clamp(2rem,5vw,3.2rem);
+      font-weight:700; line-height:1.1;
+      margin-bottom:10px;
+    }
+    .hero h1 em { color:var(--gold); font-style:normal; }
+    .hero p { font-size:.85rem; color:rgba(255,255,255,.4); margin-bottom:28px; }
+
+    /* ── SEARCH BOX ── */
+    .search-wrap {
+      position:relative; max-width:540px; margin:0 auto;
+    }
+    .search-icon {
+      position:absolute; left:16px; top:50%; transform:translateY(-50%);
+      pointer-events:none;
+    }
+    #searchInput {
+      width:100%; padding:13px 16px 13px 46px;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      border-radius:10px;
+      color:#fff; font-family:'Inter',sans-serif; font-size:.875rem;
+      outline:none; transition:border-color .25s, background .25s;
+    }
+    #searchInput::placeholder { color:rgba(255,255,255,.22); }
+    #searchInput:focus { border-color:rgba(212,175,55,.6); background:rgba(212,175,55,.04); }
+    #suggestions {
+      position:absolute; top:calc(100% + 6px); left:0; right:0;
+      background:#0e0e1e; border:1px solid var(--border);
+      border-radius:8px; overflow:hidden;
+      box-shadow:0 12px 32px rgba(0,0,0,.5);
+      z-index:50;
+    }
+    #suggestions.hidden { display:none; }
+    #suggestions li {
+      padding:10px 16px; cursor:pointer; font-size:.82rem;
+      color:rgba(255,255,255,.7); list-style:none;
+      transition:background .15s, color .15s;
+    }
+    #suggestions li:hover { background:rgba(212,175,55,.1); color:var(--gold); }
+
+    /* ── SORT SELECT ── */
+    .sort-select {
+      appearance:none; -webkit-appearance:none;
+      background:rgba(255,255,255,.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23D4AF37'/%3E%3C/svg%3E") no-repeat right 12px center;
+      border:1px solid rgba(212,175,55,.3);
+      border-radius:8px;
+      color:rgba(255,255,255,.75);
+      font-family:'Inter',sans-serif; font-size:.72rem; font-weight:600;
+      letter-spacing:.06em; cursor:pointer;
+      padding:7px 34px 7px 13px;
+      transition:border-color .2s, background .2s;
+    }
+    .sort-select:hover, .sort-select:focus { border-color:var(--gold); outline:none; }
+    .sort-select option { background:#0e0e1c; color:#fff; }
+
+    /* ── FILTER CHIPS ── */
+    .filters {
+      display:flex; justify-content:center; flex-wrap:wrap; gap:8px;
+      padding:20px 2rem 0;
+    }
+    .chip {
+      padding:6px 18px; border-radius:999px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:rgba(255,255,255,.5);
+      font-family:'Inter',sans-serif; font-size:.75rem; font-weight:600;
+      letter-spacing:.08em; cursor:pointer;
+      transition:all .2s;
+    }
+    .chip:hover { border-color:rgba(212,175,55,.45); color:rgba(255,255,255,.8); }
+    .chip.active {
+      background:linear-gradient(135deg,var(--gold),var(--gold-lt));
+      border-color:transparent; color:#06060f;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-wrap { padding:28px 2rem 60px; max-width:1280px; margin:0 auto; }
+
+    .section-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:22px;
+    }
+    .section-title {
+      font-family:'Rajdhani',sans-serif;
+      font-size:1.1rem; font-weight:700; color:#fff; letter-spacing:.12em;
+    }
+    .section-count { font-size:.75rem; color:rgba(255,255,255,.3); }
+    .section-count span { color:var(--gold); font-weight:700; }
+
+    /* ── CAR GRID ── */
+    #carGrid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:20px;
+    }
+
+    /* ── CAR CARD ── */
+    .car-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:14px; overflow:hidden;
+      cursor:pointer;
+      transition:transform .25s, border-color .25s, box-shadow .25s;
+      display:flex; flex-direction:column;
+    }
+    .car-card:hover {
+      transform:translateY(-4px);
+      border-color:rgba(212,175,55,.45);
+      box-shadow:0 16px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(212,175,55,.12);
+    }
+
+    .car-img-wrap { position:relative; overflow:hidden; height:185px; background:#0b0b18; }
+    .car-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+    .car-card:hover .car-img-wrap img { transform:scale(1.04); }
+
+    .avail-badge {
+      position:absolute; top:10px; right:10px;
+      padding:3px 10px; border-radius:999px;
+      font-size:.62rem; font-weight:700; letter-spacing:.12em;
+    }
+    .avail-badge.available   { background:rgba(72,199,120,.18); color:rgba(72,199,120,1); border:1px solid rgba(72,199,120,.3); }
+    .avail-badge.unavailable { background:rgba(247,55,79,.15);  color:rgba(247,55,79,1);  border:1px solid rgba(247,55,79,.3); }
+
+    .recently-badge {
+      position:absolute; top:10px; left:10px;
+      padding:3px 10px; border-radius:999px;
+      font-size:.6rem; font-weight:700; letter-spacing:.1em;
+      background:rgba(212,175,55,.18); color:var(--gold); border:1px solid rgba(212,175,55,.3);
+    }
+
+    .type-badge {
+      position:absolute; bottom:10px; left:10px;
+      padding:3px 10px; border-radius:6px;
+      font-size:.6rem; font-weight:700; letter-spacing:.14em;
+      background:rgba(6,6,15,.75); color:rgba(255,255,255,.6);
+      border:1px solid rgba(255,255,255,.1);
+      backdrop-filter:blur(6px);
+    }
+
+    .car-body { padding:14px 16px 16px; display:flex; flex-direction:column; flex:1; }
+
+    .car-name {
+      font-family:'Rajdhani',sans-serif;
+      font-size:1.15rem; font-weight:700; color:#fff; letter-spacing:.05em;
+      margin-bottom:10px; line-height:1.2;
+    }
+    .car-name small { font-size:.65rem; color:rgba(255,255,255,.3); font-weight:400; letter-spacing:.12em; display:block; margin-top:1px; }
+
+    .car-specs {
+      display:grid; grid-template-columns:1fr 1fr; gap:6px;
+      margin-bottom:14px;
+    }
+    .spec {
+      display:flex; align-items:center; gap:6px;
+      font-size:.72rem; color:rgba(255,255,255,.38);
+    }
+    .spec svg { flex-shrink:0; opacity:.6; }
+
+    .car-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-top:auto;
+      padding-top:14px;
+      border-top:1px solid rgba(212,175,55,.1);
+    }
+    .price { line-height:1; }
+    .price .amount {
+      font-family:'Rajdhani',sans-serif;
+      font-size:1.45rem; font-weight:700; color:var(--gold); letter-spacing:.04em;
+    }
+    .price .per { font-size:.62rem; color:rgba(255,255,255,.3); margin-top:1px; }
+
+    .book-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 16px; border-radius:7px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-lt));
+      border:none; cursor:pointer;
+      font-family:'Rajdhani',sans-serif;
+      font-size:.78rem; font-weight:700; letter-spacing:.12em;
+      color:#06060f;
+      transition:opacity .2s, transform .15s;
+    }
+    .book-btn:hover { opacity:.88; transform:translateY(-1px); }
+    .book-btn:disabled { opacity:.35; cursor:not-allowed; transform:none; background:rgba(255,255,255,.12); color:rgba(255,255,255,.4); }
+
+    /* ── EMPTY STATE ── */
+    #emptyState {
+      display:none; text-align:center; padding:60px 20px;
+      grid-column:1/-1;
+    }
+    #emptyState.show { display:block; }
+    #emptyState svg { opacity:.25; margin:0 auto 16px; }
+    #emptyState p { color:rgba(255,255,255,.3); font-size:.875rem; }
+
+    /* ── DIVIDER LINE (top of main) ── */
+    .gold-divider {
+      height:1px;
+      background:linear-gradient(to right,transparent,rgba(212,175,55,.3),transparent);
+      margin:0 2rem;
+    }
+
+    /* ── FOOTER STRIP ── */
+    footer {
+      border-top:1px solid var(--border);
+      padding:18px 2rem;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-size:.68rem; color:rgba(255,255,255,.2); letter-spacing:.08em;
+    }
+    footer span { color:rgba(212,175,55,.4); }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+</head>
+<body>
+
+  <!-- ══ NAVBAR ══ -->
+  <nav>
+    <a href="home.html" class="nav-brand">
+      <svg id="nav-logo" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="height:38px;width:38px;overflow:visible;">
+        <defs>
+          <linearGradient id="goldGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#F5D060"/>
+            <stop offset="50%"  stop-color="#D4AF37"/>
+            <stop offset="100%" stop-color="#A07C10"/>
+          </linearGradient>
+        </defs>
+        <polygon class="hex-outer" points="70,8 125,38 125,102 70,132 15,102 15,38"
+          fill="none" stroke="url(#goldGradNav)" stroke-width="2.5" stroke-linejoin="round"/>
+        <polygon points="70,18 116,44 116,96 70,122 24,96 24,44" fill="rgba(212,175,55,0.07)"/>
+        <polyline class="v-mark" points="38,45 70,95 102,45"
+          fill="none" stroke="url(#goldGradNav)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <line class="sl-a" x1="24" y1="60" x2="42" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="sl-b" x1="24" y1="70" x2="38" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sl-c" x1="24" y1="80" x2="35" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+        <line class="sl-d" x1="116" y1="60" x2="98" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="sl-e" x1="116" y1="70" x2="102" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sl-f" x1="116" y1="80" x2="105" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="nav-brand-text">
+        <div class="name">VORTREXYN</div>
+        <div class="sub">Premium Car Rental</div>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="myReservations.html" class="nav-link reservations">
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+          <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        My Reservations
+      </a>
+      <a href="profile.html" class="nav-link reservations">
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+          <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        My Profile
+      </a>
+      <a href="../index.html" class="nav-link logout">
+        <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+          <path d="M7 10h9M13 7l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 4H5a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        LOGOUT
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-tag"><span></span>FLEET AVAILABLE NOW</div>
+      <h1>Find Your <em>Perfect Drive</em></h1>
+      <p>Choose from sedans, SUVs, coupes, convertibles, pickups and more — instant booking, no hassle.</p>
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" width="16" height="16">
+          <circle cx="8.5" cy="8.5" r="5" stroke="rgba(212,175,55,0.5)" stroke-width="1.5"/>
+          <path d="M13 13l3.5 3.5" stroke="rgba(212,175,55,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input id="searchInput" type="text" placeholder="Search by brand, model or type…" autocomplete="off"/>
+        <ul id="suggestions" class="hidden"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FILTER CHIPS ══ -->
+  <div class="filters">
+    <button class="chip active" data-filter="all">All Vehicles</button>
+    <button class="chip" data-filter="Sedan">Sedan</button>
+    <button class="chip" data-filter="SUV">SUV</button>
+    <button class="chip" data-filter="Coupe">Coupe</button>
+    <button class="chip" data-filter="Convertible">Convertible</button>
+    <button class="chip" data-filter="Wagon">Wagon</button>
+    <button class="chip" data-filter="Hatchback">Hatchback</button>
+    <button class="chip" data-filter="Pickup">Pickup</button>
+  </div>
+
+  <div class="gold-divider" style="margin-top:20px;"></div>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main-wrap">
+    <div class="section-header">
+      <div class="section-title">AVAILABLE VEHICLES</div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end;">
+        <div class="section-count">Showing <span id="carCount">0</span> vehicles</div>
+        <select class="sort-select" id="sortSelect">
+          <option value="default">Default Order</option>
+          <option value="name-az">Name: A → Z</option>
+          <option value="name-za">Name: Z → A</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="avail">Availability First</option>
+          <option value="year-desc">Newest First</option>
+          <option value="year-asc">Oldest First</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="carGrid">
+      <!-- Cards injected by JS -->
+      <div id="emptyState">
+        <svg viewBox="0 0 64 64" fill="none" width="56" height="56" style="display:block;">
+          <rect x="4" y="20" width="56" height="30" rx="6" stroke="#D4AF37" stroke-width="2"/>
+          <path d="M12 20l4-10h32l4 10" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="16" cy="50" r="4" stroke="#D4AF37" stroke-width="2"/>
+          <circle cx="48" cy="50" r="4" stroke="#D4AF37" stroke-width="2"/>
+        </svg>
+        <p>No vehicles match your search</p>
+      </div>
+    </div>
+
+    <!-- Load More -->
+    <div style="text-align:center; margin-top:36px;" id="loadMoreWrap">
+      <button id="loadMoreBtn" onclick="loadMore()"
+        style="display:none; padding:12px 36px; background:transparent;
+          border:1px solid rgba(212,175,55,0.35); border-radius:8px;
+          color:rgba(212,175,55,0.8); font-family:'Rajdhani',sans-serif;
+          font-size:.9rem; font-weight:700; letter-spacing:.2em; cursor:pointer;
+          transition:all .2s;"
+        onmouseover="this.style.background='rgba(212,175,55,0.08)';this.style.borderColor='rgba(212,175,55,0.7)';this.style.color='#D4AF37'"
+        onmouseout="this.style.background='transparent';this.style.borderColor='rgba(212,175,55,0.35)';this.style.color='rgba(212,175,55,0.8)'">
+        LOAD MORE VEHICLES
+      </button>
+      <p id="loadMoreInfo" style="margin-top:10px; font-size:.7rem; color:rgba(255,255,255,.22); letter-spacing:.06em;"></p>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <span>VORTREXYN</span> &nbsp;·&nbsp; Premium Car Rental &nbsp;·&nbsp; All rights reserved
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+  </script>
+
+  <!-- App Logic -->
+  <script>
+    // ── CONSTANTS & STATE ───────────────────────────────────────────────────
+    const PAGE_SIZE   = 24;   // How many car cards to render per batch (avoids long paint times)
+    let allCars       = [];   // Master list of all cars (JSON + customCars from Firestore)
+    let filteredCars  = [];   // Current subset after search/filter/sort is applied
+    let visibleCount  = 0;    // How many cards have been painted so far (for "Load More")
+    let activeFilter  = 'all'; // Currently selected type chip (e.g. 'SUV', 'Sedan', or 'all')
+    let searchKeyword = '';    // Live search text typed by the user
+    let activeSortOrder = 'default'; // Currently selected sort dropdown value
+
+    // ── DOM REFERENCES ──────────────────────────────────────────────────────
+    // Grab all frequently-used elements once at startup to avoid repeated DOM lookups
+    const carGrid       = document.getElementById('carGrid');
+    const searchInput   = document.getElementById('searchInput');
+    const suggestions   = document.getElementById('suggestions');   // Autocomplete dropdown
+    const carCount      = document.getElementById('carCount');       // "Showing X vehicles" counter
+    const emptyState    = document.getElementById('emptyState');     // "No vehicles" message
+    const loadMoreBtn   = document.getElementById('loadMoreBtn');    // "Load More" button
+    const loadMoreInfo  = document.getElementById('loadMoreInfo');   // "Showing X of Y" helper text
+
+    // ── FETCH CARS (JSON + Firestore custom cars + stock overrides) ──────────
+    // Loads the full fleet from three sources simultaneously using Promise.all:
+    //   1. cars.json         — the base 625-car static dataset
+    //   2. fleetOverrides    — admin stock adjustments stored in Firestore
+    //   3. customCars        — admin-added custom vehicles stored in Firestore
+    async function initCars() {
+      try {
+        const [jsonRes, overrideSnap, customSnap] = await Promise.all([
+          fetch('../data/cars.json').then(r => r.json()),
+          db.collection('fleetOverrides').doc('overrides').get().catch(() => null),
+          db.collection('customCars').get().catch(() => null)
+        ]);
+
+        // Parse the overrides document — it's a plain map: { [vin]: stockCount }
+        const overrides   = (overrideSnap && overrideSnap.exists) ? overrideSnap.data() : {};
+
+        // Convert Firestore snapshot docs into plain JS objects
+        const customCars  = customSnap ? customSnap.docs.map(d => d.data()) : [];
+
+        // Helper: if the admin has manually adjusted a car's stock, apply that override.
+        // inStore is clamped to 0 so it never goes negative.
+        const applyOv = car => {
+          const adj = overrides[car.vin];
+          return adj !== undefined ? { ...car, inStore: Math.max(0, adj), available: adj > 0 } : car;
+        };
+
+        // Merge JSON cars + custom cars, both with overrides applied
+        allCars = [
+          ...jsonRes.cars.map(applyOv),
+          ...customCars.map(applyOv)
+        ];
+
+        // Trigger the first render
+        applyFilters();
+      } catch(e) {
+        // Show a visible error inside the grid if loading fails entirely
+        carGrid.innerHTML = `<p style="color:rgba(247,55,79,.8);font-size:.85rem;grid-column:1/-1;">Failed to load vehicles.</p>`;
+      }
+    }
+    initCars(); // Run on page load
+
+    // ── SORT ────────────────────────────────────────────────────────────────
+    // Returns a new sorted copy of the cars array based on the active sort order.
+    // Never mutates the original array (creates a spread copy first).
+    function sortCars(cars) {
+      const sorted = [...cars];
+      switch (activeSortOrder) {
+        case 'name-az':    return sorted.sort((a,b) => `${a.brand} ${a.carModel}`.localeCompare(`${b.brand} ${b.carModel}`));
+        case 'name-za':    return sorted.sort((a,b) => `${b.brand} ${b.carModel}`.localeCompare(`${a.brand} ${a.carModel}`));
+        case 'price-asc':  return sorted.sort((a,b) => a.pricePerDay - b.pricePerDay);
+        case 'price-desc': return sorted.sort((a,b) => b.pricePerDay - a.pricePerDay);
+        case 'avail':      return sorted.sort((a,b) => (b.available ? 1 : 0) - (a.available ? 1 : 0)); // Available cars first
+        case 'year-desc':  return sorted.sort((a,b) => b.yearOfManufacture - a.yearOfManufacture); // Newest first
+        case 'year-asc':   return sorted.sort((a,b) => a.yearOfManufacture - b.yearOfManufacture); // Oldest first
+        default:           return sorted; // Keep original JSON order
+      }
+    }
+
+    // ── FILTER ──────────────────────────────────────────────────────────────
+    // Applies the active type chip AND the search keyword to allCars,
+    // then passes the result through sortCars(). Returns the combined list.
+    function getFiltered() {
+      const base = allCars.filter(car => {
+        // Type chip filter — 'all' passes everything through
+        const matchesType   = activeFilter === 'all' || car.carType === activeFilter;
+
+        // Search keyword filter — checks brand, model, and type fields
+        const kw            = searchKeyword.toLowerCase();
+        const matchesSearch = !kw ||
+          car.brand.toLowerCase().includes(kw) ||
+          car.carModel.toLowerCase().includes(kw) ||
+          car.carType.toLowerCase().includes(kw);
+
+        return matchesType && matchesSearch;
+      });
+      return sortCars(base);
+    }
+
+    // ── APPLY FILTERS (full re-render) ───────────────────────────────────────
+    // Called whenever the search keyword, type chip, or sort order changes.
+    // Clears existing cards and re-paints the first PAGE_SIZE results.
+    function applyFilters() {
+      filteredCars = getFiltered();
+      visibleCount = 0; // Reset pagination back to the beginning
+
+      // Remove all currently rendered car cards (leave emptyState element alone)
+      Array.from(carGrid.querySelectorAll('.car-card')).forEach(el => el.remove());
+
+      // Update the "Showing X vehicles" counter in the section header
+      carCount.textContent = filteredCars.length;
+
+      if (filteredCars.length === 0) {
+        // Show the "No vehicles match" empty state illustration
+        emptyState.classList.add('show');
+        loadMoreBtn.style.display = 'none';
+        loadMoreInfo.textContent  = '';
+        return;
+      }
+      emptyState.classList.remove('show');
+      appendCards(PAGE_SIZE); // Paint the first batch
+    }
+
+    // ── APPEND CARDS ────────────────────────────────────────────────────────
+    // Renders the next `count` cards from filteredCars starting at visibleCount.
+    // Clicking any card navigates to reservations.html with the car's VIN in the hash.
+    function appendCards(count) {
+      const slice = filteredCars.slice(visibleCount, visibleCount + count);
+      slice.forEach(car => {
+        const isAvail = car.available;
+
+        const card = document.createElement('div');
+        card.className = 'car-card';
+
+        // Build the card HTML with image, availability badge, specs, price, and book button
+        card.innerHTML = `
+          <div class="car-img-wrap">
+            <img src="${car.image || '../assets/sedan.png'}" alt="${car.brand} ${car.carModel}" loading="lazy"/>
+            <span class="avail-badge ${isAvail ? 'available' : 'unavailable'}">${isAvail ? 'AVAILABLE' : 'UNAVAILABLE'}</span>
+            <span class="type-badge">${car.carType.toUpperCase()}</span>
+          </div>
+          <div class="car-body">
+            <div class="car-name">
+              ${car.brand} ${car.carModel}
+              <small>${car.yearOfManufacture} &nbsp;·&nbsp; ${car.fuelType}</small>
+            </div>
+            <div class="car-specs">
+              <div class="spec">
+                <svg viewBox="0 0 16 16" fill="none" width="13" height="13">
+                  <path d="M8 2a6 6 0 100 12A6 6 0 008 2z" stroke="#D4AF37" stroke-width="1.2"/>
+                  <path d="M8 5v3l2 2" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                ${car.mileage}
+              </div>
+              <div class="spec">
+                <svg viewBox="0 0 16 16" fill="none" width="13" height="13">
+                  <rect x="2" y="3" width="12" height="10" rx="2" stroke="#D4AF37" stroke-width="1.2"/>
+                  <path d="M5 3V1.5M11 3V1.5M2 7h12" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                ${car.yearOfManufacture}
+              </div>
+              <div class="spec">
+                <svg viewBox="0 0 16 16" fill="none" width="13" height="13">
+                  <path d="M3 13V5a2 2 0 012-2h6a2 2 0 012 2v8" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+                  <path d="M1 13h14" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+                  <path d="M6 7h4" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                ${car.inStore} in store
+              </div>
+              <div class="spec">
+                <svg viewBox="0 0 16 16" fill="none" width="13" height="13">
+                  <path d="M2 8l2-3h8l2 3" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="1" y="8" width="14" height="5" rx="1.5" stroke="#D4AF37" stroke-width="1.2"/>
+                  <circle cx="4.5" cy="13" r="1" fill="#D4AF37"/>
+                  <circle cx="11.5" cy="13" r="1" fill="#D4AF37"/>
+                </svg>
+                ${car.fuelType}
+              </div>
+            </div>
+            <div class="car-footer">
+              <div class="price">
+                <div class="amount">$${car.pricePerDay}</div>
+                <div class="per">per day</div>
+              </div>
+              <button class="book-btn" ${!isAvail ? 'disabled' : ''}>
+                ${isAvail ? 'BOOK NOW' : 'UNAVAILABLE'}
+                ${isAvail ? `<svg viewBox="0 0 16 16" fill="none" width="12" height="12"><path d="M3 8h10M9 4l4 4-4 4" stroke="#06060f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Clicking the card navigates to the reservation page.
+        // The VIN is passed as the URL hash so the server never strips it.
+        // encodeURIComponent handles any special characters in VINs.
+        card.addEventListener('click', () => {
+          if (!car.vin) return;
+          window.location.href = 'reservations.html#' + encodeURIComponent(car.vin);
+        });
+
+        carGrid.appendChild(card);
+      });
+
+      // Advance the pagination cursor
+      visibleCount += slice.length;
+      const remaining = filteredCars.length - visibleCount;
+
+      if (remaining > 0) {
+        // More cars to show — display the "Load More" button with a progress message
+        loadMoreBtn.style.display = 'inline-flex';
+        loadMoreInfo.textContent  = `Showing ${visibleCount} of ${filteredCars.length} vehicles`;
+      } else {
+        // All cars rendered — hide the button
+        loadMoreBtn.style.display = 'none';
+        loadMoreInfo.textContent  = filteredCars.length > PAGE_SIZE
+          ? `All ${filteredCars.length} vehicles loaded` : '';
+      }
+    }
+
+    // ── LOAD MORE ───────────────────────────────────────────────────────────
+    // Triggered by the "Load More Vehicles" button at the bottom of the page
+    function loadMore() { appendCards(PAGE_SIZE); }
+
+    // ── FILTER CHIPS ────────────────────────────────────────────────────────
+    // Each chip button carries a data-filter attribute (e.g. "SUV", "Sedan", "all").
+    // Clicking a chip deactivates all others, activates the clicked one,
+    // updates the activeFilter state, and re-renders.
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeFilter = chip.dataset.filter;
+        applyFilters();
+        suggestions.classList.add('hidden'); // Hide autocomplete when a chip is clicked
+      });
+    });
+
+    // ── SORT SELECT ─────────────────────────────────────────────────────────
+    // When the user picks a different sort order, update state and re-render
+    document.getElementById('sortSelect').addEventListener('change', e => {
+      activeSortOrder = e.target.value;
+      applyFilters();
+    });
+
+    // ── LIVE SEARCH ─────────────────────────────────────────────────────────
+    // Fires on every keystroke in the search box.
+    // Two things happen simultaneously:
+    //   1. The grid re-renders filtered by the new keyword
+    //   2. An autocomplete dropdown shows up to 6 matching brand/model/type suggestions
+    searchInput.addEventListener('input', () => {
+      searchKeyword = searchInput.value.trim();
+      applyFilters();
+
+      // Clear autocomplete if the search box is empty
+      if (!searchKeyword) { suggestions.classList.add('hidden'); suggestions.innerHTML = ''; return; }
+
+      const kw = searchKeyword.toLowerCase();
+      const hits = new Set(); // Set prevents duplicate suggestions
+
+      // Collect matching brand, model, and type strings across all cars
+      allCars.forEach(car => {
+        [car.brand, car.carModel, car.carType].forEach(f => { if (f.toLowerCase().includes(kw)) hits.add(f); });
+      });
+
+      if (hits.size === 0) { suggestions.classList.add('hidden'); suggestions.innerHTML = ''; return; }
+
+      // Show up to 6 suggestions in the dropdown
+      suggestions.innerHTML = Array.from(hits).slice(0, 6).map(h => `<li>${h}</li>`).join('');
+      suggestions.classList.remove('hidden');
+    });
+
+    // ── AUTOCOMPLETE CLICK ───────────────────────────────────────────────────
+    // When the user clicks a suggestion, fill the search box with that value
+    // and re-render the grid
+    suggestions.addEventListener('click', e => {
+      if (e.target.tagName === 'LI') {
+        searchInput.value = e.target.textContent;
+        searchKeyword = searchInput.value;
+        suggestions.classList.add('hidden');
+        applyFilters();
+      }
+    });
+
+    // ── SEARCH ON ENTER ─────────────────────────────────────────────────────
+    // Pressing Enter hides the autocomplete and confirms the current search
+    searchInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') { suggestions.classList.add('hidden'); applyFilters(); }
+    });
+
+    // ── CLICK OUTSIDE — CLOSE AUTOCOMPLETE ──────────────────────────────────
+    // Clicking anywhere outside the search wrapper dismisses the dropdown
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.search-wrap')) suggestions.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | VORTREXYN</title>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>emailjs.init("T_E3Q6Fu5wJ5OmOMd");</script>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #06060f;
+      --bg2:   #080814;
+      --card:  #0f0f22;
+      --card2: #111128;
+      --gold:  #D4AF37;
+      --gold-lt: #F5D060;
+      --border: rgba(212,175,55,.15);
+      --text:  rgba(255,255,255,.88);
+      --muted: rgba(255,255,255,.4);
+      --red:   #f7374f;
+      --green: #4ade80;
+      --blue:  #60a5fa;
+    }
+    html, body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      background: rgba(8,8,20,.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-brand-text { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: .18em; color: var(--gold); }
+    .nav-brand-sub { font-size: .55rem; letter-spacing: .2em; color: rgba(212,175,55,.5); text-transform: uppercase; display: block; margin-top: 1px; }
+    .admin-badge {
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      color: #05050e; font-family: 'Rajdhani', sans-serif;
+      font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 7px; font-size: .78rem; font-weight: 500;
+      letter-spacing: .05em; text-decoration: none; border: none; cursor: pointer;
+      transition: all .2s;
+    }
+    .nav-btn.ghost { color: rgba(255,255,255,.6); background: none; border: 1px solid rgba(255,255,255,.1); }
+    .nav-btn.ghost:hover { background: rgba(255,255,255,.07); color: #fff; }
+    .nav-btn.danger { background: rgba(247,55,79,.12); color: var(--red); border: 1px solid rgba(247,55,79,.2); }
+    .nav-btn.danger:hover { background: rgba(247,55,79,.22); }
+
+    /* LAYOUT */
+    .shell { display: flex; min-height: calc(100vh - 64px); }
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: rgba(8,8,20,.7);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky; top: 64px; height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      font-size: .62rem; letter-spacing: .18em; color: var(--muted);
+      text-transform: uppercase; padding: .5rem 1.4rem .3rem;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: .65rem 1.4rem; cursor: pointer;
+      font-size: .82rem; font-weight: 500; color: rgba(255,255,255,.6);
+      border-left: 3px solid transparent;
+      transition: all .18s; user-select: none;
+    }
+    .sidebar-item:hover { color: #fff; background: rgba(255,255,255,.04); }
+    .sidebar-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(212,175,55,.06); }
+    .sidebar-item svg { opacity: .7; flex-shrink: 0; }
+    .sidebar-item.active svg { opacity: 1; }
+
+    .main { flex: 1; padding: 2rem; overflow-x: hidden; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3rem 1.4rem;
+    }
+    .stat-label { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    .stat-value { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .stat-sub { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+
+    /* SECTION HEADERS */
+    .sec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: .8rem; }
+    .sec-title { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700; letter-spacing: .08em; color: var(--gold); }
+    .sec-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+
+    /* SEARCH / FILTER */
+    .filter-input {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: .5rem .9rem; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: .82rem;
+      outline: none; transition: border-color .2s; width: 220px;
+    }
+    .filter-input:focus { border-color: rgba(212,175,55,.45); }
+    .filter-select {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; padding: .5rem .9rem; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: .82rem; outline: none; cursor: pointer;
+    }
+    .filter-select option { background: #111128; }
+
+    /* TABLE */
+    .tbl-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    th {
+      background: rgba(212,175,55,.07); padding: .75rem 1rem;
+      text-align: left; font-size: .68rem; font-weight: 600;
+      letter-spacing: .12em; text-transform: uppercase; color: rgba(212,175,55,.75);
+      white-space: nowrap;
+    }
+    td { padding: .7rem 1rem; border-top: 1px solid rgba(255,255,255,.05); vertical-align: middle; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 20px;
+      font-size: .68rem; font-weight: 600; letter-spacing: .07em;
+    }
+    .badge-green { background: rgba(74,222,128,.12); color: var(--green); }
+    .badge-gold  { background: rgba(212,175,55,.12); color: var(--gold); }
+    .badge-red   { background: rgba(247,55,79,.12);  color: var(--red); }
+    .badge-blue  { background: rgba(96,165,250,.12); color: var(--blue); }
+    .badge-gray  { background: rgba(255,255,255,.08); color: var(--muted); }
+
+    /* ACTION BTN */
+    .act-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 6px; border: none; cursor: pointer;
+      font-size: .72rem; font-weight: 600; letter-spacing: .06em;
+      transition: all .15s;
+    }
+    .act-btn.cancel { background: rgba(247,55,79,.12); color: var(--red); border: 1px solid rgba(247,55,79,.2); }
+    .act-btn.cancel:hover { background: rgba(247,55,79,.25); }
+    .act-btn.restore { background: rgba(74,222,128,.1); color: var(--green); border: 1px solid rgba(74,222,128,.2); }
+    .act-btn.restore:hover { background: rgba(74,222,128,.22); }
+    .act-btn.approve { background: rgba(212,175,55,.12); color: var(--gold); border: 1px solid rgba(212,175,55,.2); }
+    .act-btn.approve:hover { background: rgba(212,175,55,.25); }
+
+    /* FLEET GRID */
+    .fleet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .fleet-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .6rem;
+    }
+    .fleet-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+    .fleet-car-name { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; }
+    .fleet-meta { font-size: .72rem; color: var(--muted); }
+    .fleet-stock { display: flex; align-items: center; gap: .7rem; }
+    .stock-num { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--gold); min-width: 28px; }
+    .stock-controls { display: flex; gap: 4px; }
+    .stock-btn {
+      width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05); color: #fff; font-size: 1rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .stock-btn:hover { background: rgba(212,175,55,.15); border-color: rgba(212,175,55,.35); color: var(--gold); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: none; align-items: center; justify-content: center; z-index: 999;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #111128; border: 1px solid var(--border); border-radius: 16px;
+      padding: 2rem; max-width: 440px; width: 90%; text-align: center;
+    }
+    .modal h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--gold); margin-bottom: .7rem; }
+    .modal p { font-size: .84rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.4rem; }
+    .modal-actions { display: flex; gap: .8rem; justify-content: center; }
+    .modal-btn {
+      padding: .6rem 1.6rem; border-radius: 8px; border: none; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif; font-size: .95rem; font-weight: 700; letter-spacing: .08em;
+      transition: opacity .2s;
+    }
+    .modal-btn:hover { opacity: .85; }
+    .modal-btn.confirm { background: linear-gradient(135deg, var(--red), #c82030); color: #fff; }
+    .modal-btn.dismiss { background: rgba(255,255,255,.08); color: var(--text); }
+
+    /* EMPTY */
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .empty svg { margin-bottom: .8rem; opacity: .3; }
+
+    /* ADD CAR MODAL */
+    .add-car-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      display: none; align-items: center; justify-content: center;
+      z-index: 999; backdrop-filter: blur(4px); padding: 1rem;
+    }
+    .add-car-overlay.open { display: flex; }
+    .add-car-modal {
+      background: #111128; border: 1px solid rgba(212,175,55,.2);
+      border-radius: 18px; padding: 2rem; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto; position: relative;
+    }
+    .add-car-title {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700;
+      letter-spacing: .15em;
+      background: linear-gradient(135deg, var(--gold), #F5D060);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1.4rem;
+    }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: .75rem; }
+    .form-field2 { margin-bottom: .75rem; }
+    .form-label2 { display: block; font-size: .63rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .3rem; }
+    .form-input2, .form-select2, .form-textarea2 {
+      width: 100%; padding: .58rem .8rem;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: .84rem;
+      outline: none; transition: border-color .2s;
+    }
+    .form-input2:focus, .form-select2:focus, .form-textarea2:focus { border-color: rgba(212,175,55,.5); }
+    .form-select2 option { background: #111128; }
+    .form-textarea2 { resize: vertical; min-height: 75px; }
+    .form-input2.err, .form-select2.err { border-color: rgba(247,55,79,.5); }
+    .form-err2 { font-size: .63rem; color: var(--red); margin-top: .2rem; min-height: .9em; }
+    .add-car-actions { display: flex; gap: .8rem; margin-top: 1.2rem; }
+    .btn-add-submit {
+      flex: 1; padding: .68rem 1rem;
+      background: linear-gradient(135deg, var(--gold), #F5D060);
+      border: none; border-radius: 8px; color: #0a0a0a;
+      font-family: 'Rajdhani', sans-serif; font-size: .95rem; font-weight: 700;
+      letter-spacing: .12em; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-add-submit:hover { opacity: .85; }
+    .btn-add-submit:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-add-cancel {
+      padding: .68rem 1rem; border-radius: 8px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted); font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem; font-weight: 700; letter-spacing: .12em;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-add-cancel:hover { background: rgba(255,255,255,.1); color: var(--text); }
+    .add-car-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1.1rem; line-height: 1; transition: color .2s;
+    }
+    .add-car-close:hover { color: var(--text); }
+    .badge-custom { background: rgba(96,165,250,.12); color: var(--blue); border: 1px solid rgba(96,165,250,.2); }
+    .act-btn.del-custom { background: rgba(247,55,79,.08); color: var(--red); border: 1px solid rgba(247,55,79,.18); font-size: .68rem; }
+    .act-btn.del-custom:hover { background: rgba(247,55,79,.2); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+      background: #1a1a35; border: 1px solid var(--border); border-radius: 10px;
+      padding: .75rem 1.2rem; font-size: .82rem; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      transform: translateY(20px); opacity: 0; transition: all .3s;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .main { padding: 1rem; }
+    }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="admin.html">
+    <svg viewBox="0 0 48 48" fill="none" width="34" height="34">
+      <polygon points="24,2 46,13 46,35 24,46 2,35 2,13" fill="none" stroke="url(#ng)" stroke-width="1.5"/>
+      <defs>
+        <linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#D4AF37"/><stop offset="100%" stop-color="#F5D060"/>
+        </linearGradient>
+      </defs>
+      <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Rajdhani,sans-serif" font-size="18" font-weight="700" fill="url(#ng)">V</text>
+    </svg>
+    <div>
+      <div class="nav-brand-text">VORTREXYN</div>
+      <span class="nav-brand-sub">Premium Car Rental</span>
+    </div>
+  </a>
+  <div style="display:flex;align-items:center;gap:.8rem;">
+    <span class="admin-badge">ADMIN</span>
+    <div class="nav-right">
+      <button class="nav-btn ghost" onclick="switchSection('fleet', this)">Fleet</button>
+      <button class="nav-btn danger" onclick="doLogout()">
+        <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+          <path d="M7 10h9M13 7l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 4H5a1 1 0 00-1 1v10a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Dashboard</div>
+    <div class="sidebar-item active" data-sec="overview" onclick="switchSection('overview',this)">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+        <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+        <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+        <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      Overview
+    </div>
+    <div class="sidebar-label" style="margin-top:.5rem;">Management</div>
+    <div class="sidebar-item" data-sec="bookings" onclick="switchSection('bookings',this)">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+        <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      All Bookings
+    </div>
+    <div class="sidebar-item" data-sec="fleet" onclick="switchSection('fleet',this)">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+        <rect x="1" y="7" width="18" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M4 7l2-4h8l2 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="5.5" cy="16" r="1.5" fill="currentColor"/>
+        <circle cx="14.5" cy="16" r="1.5" fill="currentColor"/>
+      </svg>
+      Fleet Inventory
+    </div>
+    <div class="sidebar-item" data-sec="users" onclick="switchSection('users',this)">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+        <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      All Users
+    </div>
+    <div class="sidebar-item" data-sec="revenue" onclick="switchSection('revenue',this)">
+      <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+        <path d="M3 14l4-5 4 3 3-4 3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="1" y="1" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      Revenue Stats
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="sec-overview">
+      <div class="sec-hd"><div class="sec-title">OVERVIEW</div><div id="overviewRefresh" style="font-size:.75rem;color:var(--muted);">Loading…</div></div>
+      <div class="stat-grid" id="overviewStats"></div>
+      <div class="sec-title" style="font-size:1rem;margin-bottom:.8rem;color:rgba(255,255,255,.6);">Recent Bookings</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>User</th><th>Car</th><th>Pickup</th><th>Return</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody id="recentBookingsTbl"></tbody>
+      </table></div>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section class="section" id="sec-bookings">
+      <div class="sec-hd">
+        <div class="sec-title">ALL BOOKINGS</div>
+        <div class="sec-actions">
+          <input class="filter-input" type="text" id="bookingSearch" placeholder="Search name, car, email…" oninput="filterBookings()"/>
+          <select class="filter-select" id="bookingStatus" onchange="filterBookings()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Active">Active</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Completed">Completed</option>
+            <option value="Paid">Paid</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>User</th><th>Email</th><th>Car</th><th>Start Date</th><th>Duration</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="bookingsTbl"></tbody>
+      </table></div>
+    </section>
+
+    <!-- FLEET -->
+    <section class="section" id="sec-fleet">
+      <div class="sec-hd">
+        <div class="sec-title">FLEET INVENTORY</div>
+        <div class="sec-actions">
+          <input class="filter-input" type="text" id="fleetSearch" placeholder="Search brand, model…" oninput="filterFleet()"/>
+          <select class="filter-select" id="fleetType" onchange="filterFleet()">
+            <option value="">All Types</option>
+          </select>
+          <button class="act-btn approve" style="white-space:nowrap;padding:.45rem .9rem;" onclick="openAddCar()">+ Add Car</button>
+        </div>
+      </div>
+      <div class="fleet-grid" id="fleetGrid"></div>
+    </section>
+
+    <!-- USERS -->
+    <section class="section" id="sec-users">
+      <div class="sec-hd">
+        <div class="sec-title">ALL USERS</div>
+        <div class="sec-actions">
+          <input class="filter-input" type="text" id="userSearch" placeholder="Search name, email…" oninput="filterUsers()"/>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>License</th><th>Bookings</th><th>Spent</th><th>Joined</th><th></th></tr></thead>
+        <tbody id="usersTbl"></tbody>
+      </table></div>
+    </section>
+
+    <!-- REVENUE -->
+    <section class="section" id="sec-revenue">
+      <div class="sec-hd"><div class="sec-title">REVENUE STATS</div></div>
+      <div class="stat-grid" id="revenueStats"></div>
+      <div style="margin-top:1.8rem;">
+        <div class="sec-title" style="font-size:1rem;margin-bottom:.8rem;color:rgba(255,255,255,.6);">Top Rented Cars</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Car</th><th>Bookings</th><th>Revenue</th><th>Avg Days</th></tr></thead>
+          <tbody id="topCarsTbl"></tbody>
+        </table></div>
+      </div>
+      <div style="margin-top:1.8rem;">
+        <div class="sec-title" style="font-size:1rem;margin-bottom:.8rem;color:rgba(255,255,255,.6);">Monthly Revenue</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Month</th><th>Bookings</th><th>Revenue</th></tr></thead>
+          <tbody id="monthlyTbl"></tbody>
+        </table></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Add Car Modal -->
+<div class="add-car-overlay" id="addCarOverlay">
+  <div class="add-car-modal">
+    <button class="add-car-close" onclick="closeAddCar()">✕</button>
+    <div class="add-car-title">ADD NEW VEHICLE</div>
+
+    <div class="form-row2">
+      <div class="form-field2">
+        <label class="form-label2">Brand *</label>
+        <input class="form-input2" id="ac-brand" placeholder="e.g. Toyota"/>
+        <div class="form-err2" id="ac-err-brand"></div>
+      </div>
+      <div class="form-field2">
+        <label class="form-label2">Model *</label>
+        <input class="form-input2" id="ac-model" placeholder="e.g. Camry"/>
+        <div class="form-err2" id="ac-err-model"></div>
+      </div>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field2">
+        <label class="form-label2">Car Type *</label>
+        <select class="form-select2" id="ac-type">
+          <option value="">Select type</option>
+          <option>Sedan</option><option>SUV</option><option>Convertible</option>
+          <option>Coupe</option><option>Sports Car</option><option>Limousine</option>
+          <option>Pickup Truck</option><option>Hatchback</option><option>Wagon</option>
+          <option>Electric</option><option>Van</option>
+        </select>
+        <div class="form-err2" id="ac-err-type"></div>
+      </div>
+      <div class="form-field2">
+        <label class="form-label2">Fuel Type *</label>
+        <select class="form-select2" id="ac-fuel">
+          <option value="">Select fuel</option>
+          <option>Gasoline</option><option>Hybrid</option>
+          <option>Electric</option><option>Diesel</option>
+        </select>
+        <div class="form-err2" id="ac-err-fuel"></div>
+      </div>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field2">
+        <label class="form-label2">Year *</label>
+        <input class="form-input2" id="ac-year" type="number" min="1990" max="2030" placeholder="e.g. 2023"/>
+        <div class="form-err2" id="ac-err-year"></div>
+      </div>
+      <div class="form-field2">
+        <label class="form-label2">Mileage</label>
+        <input class="form-input2" id="ac-mileage" placeholder="e.g. 15,000 km"/>
+      </div>
+    </div>
+
+    <div class="form-row2">
+      <div class="form-field2">
+        <label class="form-label2">Price Per Day (AUD) *</label>
+        <input class="form-input2" id="ac-price" type="number" min="1" placeholder="e.g. 250"/>
+        <div class="form-err2" id="ac-err-price"></div>
+      </div>
+      <div class="form-field2">
+        <label class="form-label2">Stock *</label>
+        <input class="form-input2" id="ac-stock" type="number" min="0" placeholder="e.g. 3"/>
+        <div class="form-err2" id="ac-err-stock"></div>
+      </div>
+    </div>
+
+    <div class="form-field2">
+      <label class="form-label2">Vehicle Image</label>
+      <div id="acImgPreviewWrap" style="display:none;margin-bottom:.6rem;border-radius:10px;overflow:hidden;border:1px solid rgba(212,175,55,.15);">
+        <img id="acImgPreview" src="" alt="Generated car" style="width:100%;height:160px;object-fit:cover;display:block;"/>
+      </div>
+      <button type="button" class="btn-add-submit" id="acGenImgBtn"
+        onclick="generateCarImage()"
+        style="width:100%;font-size:.82rem;padding:.55rem .8rem;letter-spacing:.08em;">
+        ✦ Generate Image with AI
+      </button>
+      <div style="font-size:.6rem;color:var(--muted);margin-top:.3rem;text-align:center;">
+        Image is auto-generated from the car details above using DALL-E 3
+      </div>
+      <div class="form-err2" id="ac-err-img"></div>
+    </div>
+
+    <div class="form-field2">
+      <label class="form-label2">Description</label>
+      <textarea class="form-textarea2" id="ac-desc" placeholder="Describe the vehicle…"></textarea>
+      <button type="button" class="btn-add-submit" id="acGenDescBtn"
+        onclick="generateCarDescription()"
+        style="width:100%;font-size:.82rem;padding:.55rem .8rem;letter-spacing:.08em;margin-top:.5rem;">
+        ✦ Generate Description with AI
+      </button>
+      <div style="font-size:.6rem;color:var(--muted);margin-top:.3rem;text-align:center;">
+        Description is auto-generated from the car details above using GPT-4o
+      </div>
+      <div class="form-err2" id="ac-err-desc"></div>
+    </div>
+
+    <div class="add-car-actions">
+      <button class="btn-add-cancel" onclick="closeAddCar()">Cancel</button>
+      <button class="btn-add-submit" id="acSubmitBtn" onclick="submitAddCar()">ADD VEHICLE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel modal -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal">
+    <h3>Cancel Booking</h3>
+    <p id="cancelModalDesc">Are you sure you want to cancel this booking?</p>
+    <div class="modal-actions">
+      <button class="modal-btn dismiss" onclick="closeModal()">Keep It</button>
+      <button class="modal-btn confirm" onclick="confirmCancel()">Cancel Booking</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  const ADMIN_EMAIL = 'vortrexyn.madmax@gmail.com';
+
+  firebase.initializeApp({
+    apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+    authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+    projectId: "vortrexyn-car-rental-system",
+    storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+    messagingSenderId: "212497343971",
+    appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+  });
+
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+
+  // ── State ──────────────────────────────────────────────────────────
+  let allBookings = [];
+  let allUsers    = [];
+  let fleetData   = [];
+  let cancelTarget = null;
+
+  // ── Auth guard ─────────────────────────────────────────────────────
+  auth.onAuthStateChanged(user => {
+    if (!user) { window.location.href = '../index.html'; return; }
+    if (user.email !== ADMIN_EMAIL) {
+      window.location.href = 'home.html'; return;
+    }
+    loadAll();
+  });
+
+  function doLogout() {
+    auth.signOut().then(() => { window.location.href = '../index.html'; });
+  }
+
+  // ── Section switching ──────────────────────────────────────────────
+  function switchSection(name, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    // Highlight the matching sidebar item (el may be the sidebar item itself or a nav button)
+    const sidebarItem = document.querySelector(`.sidebar-item[data-sec="${name}"]`);
+    if (sidebarItem) sidebarItem.classList.add('active');
+  }
+
+  // ── LOAD ALL DATA ──────────────────────────────────────────────────
+  // Entry point called after Firebase auth confirms the admin is logged in.
+  // Fetches bookings, users, and fleet in parallel, then renders all sections.
+  async function loadAll() {
+    await Promise.all([loadBookings(), loadUsers(), loadFleet()]);
+    renderOverview();  // Stat cards (totals, revenue, users, stock)
+    renderRevenue();   // Revenue section (top cars, monthly breakdown)
+    document.getElementById('overviewRefresh').textContent =
+      'Last updated: ' + new Date().toLocaleTimeString(); // Timestamp shown next to "Overview"
+  }
+
+  // ── BOOKINGS — LOAD ─────────────────────────────────────────────────
+  // Pulls all documents from the 'orders' collection, newest first.
+  // Falls back to an empty array if the collection doesn't exist yet.
+  async function loadBookings() {
+    try {
+      const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
+      allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) {
+      allBookings = []; // Collection may not exist on a fresh project
+    }
+    renderBookings(allBookings);
+    renderRecentBookings(allBookings.slice(0, 8)); // Overview tab shows the 8 most recent
+  }
+
+  // ── DATE HELPERS ────────────────────────────────────────────────────
+  // Parses a date string safely, treating "YYYY-MM-DD" as local midnight
+  // to avoid the common UTC timezone offset bug (e.g. Mar 5 showing as Mar 4)
+  function parseLocalDate(str) {
+    if (!str) return new Date('');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return new Date(str + 'T00:00:00');
+    return new Date(str);
+  }
+
+  // Returns true if today falls within the booking's rental window
+  function isDateActive(b) {
+    const r = b.rental || {};
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = parseLocalDate(r.startDate || r.pickupDate || '');
+    if (isNaN(start)) return false;
+    const end = new Date(start);
+    end.setDate(end.getDate() + parseInt(r.rentalPeriod || r.days || 1));
+    return today >= start && today <= end;
+  }
+
+  // Returns true if the rental end date has already passed
+  function isDateCompleted(b) {
+    const r = b.rental || {};
+    const today = new Date(); today.setHours(0,0,0,0);
+    const start = parseLocalDate(r.startDate || r.pickupDate || '');
+    if (isNaN(start)) return false;
+    const end = new Date(start);
+    end.setDate(end.getDate() + parseInt(r.rentalPeriod || r.days || 1));
+    return today > end;
+  }
+
+  // ── BOOKING STATUS ──────────────────────────────────────────────────
+  // Derives a human-readable label + badge CSS class from a booking document.
+  // Priority order: cancelled → pending → paid → date-based (upcoming/active/completed)
+  function bookingStatus(b) {
+    if (b.status === 'cancelled') return { label: 'Cancelled', cls: 'badge-red' };
+    if (b.status === 'pending')   return { label: 'Pending',   cls: 'badge-gold' };
+    if (b.status === 'paid')      return { label: 'Paid',      cls: 'badge-green' };
+    const today   = new Date(); today.setHours(0,0,0,0);
+    const start   = parseLocalDate(b.rental?.startDate || b.rental?.pickupDate || b.pickupDate || '');
+    const days    = parseInt(b.rental?.rentalPeriod || b.rental?.days || b.days || 1);
+    const end     = new Date(start); end.setDate(end.getDate() + days);
+    if (isNaN(start)) return { label: 'Approved', cls: 'badge-blue' }; // Approved but no date set
+    if (today < start)              return { label: 'Upcoming',  cls: 'badge-blue' };
+    if (today > end)                return { label: 'Completed', cls: 'badge-gray' };
+    return { label: 'Active', cls: 'badge-green' };
+  }
+
+  // ── FORMAT PRICE ────────────────────────────────────────────────────
+  // Converts any price value (number or string with commas) to "$1,234.56"
+  function fmtPrice(v) {
+    const n = parseFloat(String(v || 0).replace(/,/g, ''));
+    return isNaN(n) ? '$0' : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ── RENDER BOOKINGS TABLE ───────────────────────────────────────────
+  // Builds the full bookings table rows.
+  // For pending bookings: shows an "Approve" button.
+  // For active/upcoming bookings: shows a "Cancel" button.
+  // For paid/cancelled/completed: shows a dash (no actions available).
+  function renderBookings(list) {
+    const tb = document.getElementById('bookingsTbl');
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">No bookings found.</td></tr>'; return; }
+    tb.innerHTML = list.map((b, i) => {
+      const st     = bookingStatus(b);
+      const car    = b.car?.carModel || b.carModel || '—';
+      const brand  = b.car?.brand || '';
+      const name   = b.userName || b.user?.name || '—';
+      const email  = b.userEmail || b.user?.email || '—';
+      const start  = b.rental?.startDate || b.rental?.pickupDate || b.pickupDate || '—';
+      const period = b.rental?.rentalPeriod || b.rental?.days || b.days || '—';
+      const total  = fmtPrice(b.rental?.totalPrice || b.totalPrice);
+      const isPending   = b.status === 'pending';
+      const isCancelled = b.status === 'cancelled';
+      const isPaid      = b.status === 'paid';
+      const isCompleted = st.label === 'Completed';
+      // Find real index in allBookings (list may be a filtered subset)
+      const realIdx = allBookings.findIndex(x => x.id === b.id);
+      return `<tr>
+        <td>${name}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${email}</td>
+        <td>${brand} ${car}</td>
+        <td style="font-size:.75rem">${start}</td>
+        <td style="font-size:.75rem">${period} day${parseInt(period) > 1 ? 's' : ''}</td>
+        <td>${total}</td>
+        <td><span class="badge ${st.cls}">${st.label}</span></td>
+        <td style="display:flex;gap:.4rem;flex-wrap:wrap;">
+          ${isPending ? `<button class="act-btn approve" onclick="approveBooking(${realIdx})">Approve</button>` : ''}
+          ${(!isCancelled && !isCompleted && !isPaid)
+            ? `<button class="act-btn cancel" onclick="openCancel(${realIdx},'${brand} ${car}','${name}')">Cancel</button>`
+            : '<span style="color:var(--muted);font-size:.72rem;">—</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── RENDER RECENT BOOKINGS (Overview tab) ──────────────────────────
+  // Renders a condensed table of the 8 most recent bookings on the Overview page.
+  // Simpler columns than the full bookings table (no action buttons).
+  function renderRecentBookings(list) {
+    const tb = document.getElementById('recentBookingsTbl');
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">No bookings yet.</td></tr>'; return; }
+    tb.innerHTML = list.map(b => {
+      const st   = bookingStatus(b);
+      const car  = b.car?.carModel || b.carModel || '—';
+      const name = b.userName || b.user?.name || '—';
+      const pickup = b.rental?.pickupDate || b.pickupDate || '—';
+      const ret    = b.rental?.returnDate || b.returnDate || '—';
+      const total  = fmtPrice(b.rental?.totalPrice || b.totalPrice);
+      return `<tr>
+        <td>${name}</td><td>${car}</td><td>${pickup}</td>
+        <td>${ret}</td><td>${total}</td>
+        <td><span class="badge ${st.cls}">${st.label}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── FILTER BOOKINGS TABLE ───────────────────────────────────────────
+  // Filters the bookings list by the search text box AND the status dropdown.
+  // Both filters are applied together — both must pass for a row to show.
+  function filterBookings() {
+    const q  = document.getElementById('bookingSearch').value.toLowerCase();
+    const st = document.getElementById('bookingStatus').value;
+    const filtered = allBookings.filter(b => {
+      // Combine all text fields into one string for easy substring search
+      const txt = [
+        b.userName, b.user?.name, b.userEmail, b.user?.email,
+        b.car?.brand, b.car?.carModel, b.carModel
+      ].join(' ').toLowerCase();
+      const matchQ  = !q  || txt.includes(q);                    // Blank query matches everything
+      const matchSt = !st || bookingStatus(b).label === st;      // Blank status matches everything
+      return matchQ && matchSt;
+    });
+    renderBookings(filtered);
+  }
+
+  // ── APPROVE BOOKING ────────────────────────────────────────────────
+  // Called when the admin clicks "Approve" on a pending booking.
+  // Steps: update Firestore status → refresh tables → send confirmation email via EmailJS
+  async function approveBooking(idx) {
+    const b = allBookings[idx];
+    if (!b) return;
+    try {
+      // Update the 'orders' document status field to 'approved'
+      await db.collection('orders').doc(b.id).update({ status: 'approved' });
+      allBookings[idx].status = 'approved'; // Also update the in-memory copy for instant UI refresh
+
+      // Re-render affected UI sections
+      renderBookings(allBookings);
+      renderRecentBookings(allBookings.slice(0, 8));
+      renderOverview();
+
+      // Build and send an approval confirmation email to the customer.
+      // Uses EmailJS with the pre-configured service + approval template IDs.
+      const c   = b.customer || {};
+      const car = b.car || {};
+      const r   = b.rental || {};
+      const startFmt = r.startDate
+        ? new Date(r.startDate).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})
+        : r.startDate || '—';
+      emailjs.send('service_29gwayk', 'template_p5tesbb', {
+        to_name:       b.userName || c.name || '—',
+        email:         b.userEmail || c.email || '—',
+        license:       c.driversLicenseNumber || '—',
+        car_model:     `${car.brand || ''} ${car.carModel || ''}`.trim(),
+        car_type:      car.carType      || '—',
+        fuel:          car.fuelType     || '—',
+        year:          car.yearOfManufacture || '—',
+        mileage:       car.mileage      || '—',
+        price_per_day: car.pricePerDay  || '—',
+        start_date:    startFmt,
+        rental_days:   r.rentalPeriod   || r.days || '—',
+        total:         r.totalPrice     || '—'
+      }).catch(e => console.warn('Approval email failed:', e));
+
+      showToast('Booking approved — confirmation email sent to customer.');
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
+  }
+
+  // ── CANCEL BOOKING — OPEN MODAL ────────────────────────────────────
+  // Opens the confirmation modal before the admin cancels a booking.
+  // Stores the booking index + Firestore doc ID so confirmCancel() can act on them.
+  function openCancel(idx, car, user) {
+    cancelTarget = { idx, bookingId: allBookings[idx].id };
+    document.getElementById('cancelModalDesc').textContent =
+      `Cancel ${car} booking for ${user}? A cancellation email will be sent.`;
+    document.getElementById('cancelModal').classList.add('open');
+  }
+
+  // Closes the cancel confirmation modal and clears the pending target
+  function closeModal() { document.getElementById('cancelModal').classList.remove('open'); cancelTarget = null; }
+
+  // ── RESTORE CAR STOCK AFTER CANCELLATION ───────────────────────────
+  // When a booking is cancelled, we add 1 back to that car's stock in Firestore.
+  // The new stock is capped at the car's original base inStore value so it never
+  // exceeds what was in the JSON data file.
+  async function restoreBookingStock(vin) {
+    if (!vin) return;
+    try {
+      const ovRef  = db.collection('fleetOverrides').doc('overrides');
+      const ovSnap = await ovRef.get();
+      const ov     = ovSnap.exists ? ovSnap.data() : {};
+
+      // Look up the car's base stock first from in-memory fleetData,
+      // falling back to fetching cars.json if the car isn't loaded yet
+      let baseCar = fleetData.find(c => c.vin === vin);
+      if (!baseCar) {
+        const json = await fetch('../data/cars.json').then(r => r.json());
+        baseCar = (json.cars || []).find(c => c.vin === vin);
+      }
+      const base    = baseCar ? (baseCar.inStore ?? baseCar.currentStock ?? 0) : 0;
+      const current = ov[vin] !== undefined ? ov[vin] : (baseCar?.currentStock ?? base);
+      const newStock = Math.min(base, current + 1); // Never exceed original base stock
+
+      // Write the updated stock back to Firestore (merge keeps other VINs intact)
+      await ovRef.set({ [vin]: newStock }, { merge: true });
+
+      // Also update the in-memory copy so the Fleet section refreshes correctly
+      if (baseCar) baseCar.currentStock = newStock;
+    } catch(e) {
+      console.warn('Stock restore failed:', e);
+    }
+  }
+
+  // ── CONFIRM CANCEL ─────────────────────────────────────────────────
+  // Executes the actual cancellation after the admin confirms in the modal.
+  // Steps: mark order as cancelled → restore stock → refresh all sections → send email
+  async function confirmCancel() {
+    if (!cancelTarget) return;
+    const b = allBookings[cancelTarget.idx];
+    try {
+      // Set status to 'cancelled' — we keep the record, never hard-delete
+      await db.collection('orders').doc(cancelTarget.bookingId).update({ status: 'cancelled' });
+      allBookings[cancelTarget.idx].status = 'cancelled';
+
+      // Give the car's stock unit back
+      const vin = b?.car?.vin;
+      if (vin) await restoreBookingStock(vin);
+
+      closeModal();
+
+      // Re-render all sections that display booking data
+      renderBookings(allBookings);
+      renderRecentBookings(allBookings.slice(0, 8));
+      renderOverview();
+      renderRevenue();
+
+      // Send cancellation notification email to the customer via EmailJS
+      if (b && b.userEmail) {
+        const c   = b.customer || {};
+        const car = b.car || {};
+        const r   = b.rental || {};
+        const startFmt = r.startDate
+          ? new Date(r.startDate).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'})
+          : r.startDate || '—';
+        const cancelParams = {
+          to_name:       b.userName || c.name || '—',
+          email:         b.userEmail || c.email,
+          license:       c.driversLicenseNumber || '—',
+          car_model:     `${car.brand || ''} ${car.carModel || ''}`.trim(),
+          car_type:      car.carType      || '—',
+          fuel:          car.fuelType     || '—',
+          year:          car.yearOfManufacture || '—',
+          mileage:       car.mileage      || '—',
+          price_per_day: car.pricePerDay  || '—',
+          rental_days:   r.rentalPeriod || r.days || '—',
+          rental_period: `${r.rentalPeriod || r.days || '—'} day(s)`,
+          start_date:    startFmt,
+          end_date:      '—',
+          total:         r.totalPrice || '—',
+          total_price:   `$${r.totalPrice || '—'}`,
+          message:       `Your reservation for the ${car.brand || ''} ${car.carModel || ''} has been cancelled by the admin. Please contact us for further assistance.`
+        };
+        emailjs.send('service_29gwayk', 'template_ho59umh', cancelParams)
+          .catch(e => console.warn('User cancel email failed:', e));
+      }
+
+      showToast('Booking cancelled. Cancellation email sent to user.');
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
+  }
+
+  // ── FLEET — LOAD ────────────────────────────────────────────────────
+  // Builds fleetData by merging three sources:
+  //   1. cars.json          — the static base fleet (625 cars)
+  //   2. customCars         — admin-added cars saved in Firestore
+  //   3. fleetOverrides     — admin stock adjustments saved in Firestore
+  // The merged array is stored in fleetData and rendered as cards.
+  async function loadFleet() {
+    try {
+      const res = await fetch('../data/cars.json');
+      const json = await res.json();
+      fleetData = json.cars || [];
+    } catch(e) { fleetData = []; }
+
+    // Append custom cars from Firestore (stored with their Firestore doc ID for deletion)
+    try {
+      const snap = await db.collection('customCars').get();
+      const custom = snap.docs.map(d => ({ ...d.data(), _docId: d.id, source: 'custom' }));
+      fleetData = [...fleetData, ...custom];
+    } catch(e) {}
+
+    // Apply any stock overrides the admin has set (keyed by VIN)
+    let overrides = {};
+    try {
+      const snap = await db.collection('fleetOverrides').doc('overrides').get();
+      if (snap.exists) overrides = snap.data();
+    } catch(e) {}
+
+    // Merge currentStock onto each car — prefer override if set, else use base inStore
+    fleetData = fleetData.map(c => ({
+      ...c,
+      currentStock: overrides[c.vin] !== undefined ? overrides[c.vin] : c.inStore
+    }));
+
+    // Dynamically rebuild the "Filter by Type" dropdown from the loaded car types
+    const types = [...new Set(fleetData.map(c => c.carType))].sort();
+    const sel = document.getElementById('fleetType');
+    sel.innerHTML = '<option value="">All Types</option>';
+    types.forEach(t => { const o = document.createElement('option'); o.value = o.textContent = t; sel.appendChild(o); });
+
+    renderFleet(fleetData); // Paint all fleet cards
+  }
+
+  // ── FLEET — RENDER ─────────────────────────────────────────────────
+  // Renders fleet cards as a CSS grid. Each card shows:
+  //   • Car name, type, year, price
+  //   • Availability badge (green = in stock, red = out)
+  //   • "Custom" badge (blue) for admin-added cars
+  //   • Stock counter with + / - buttons
+  //   • Delete button for custom cars only (JSON cars cannot be deleted)
+  function renderFleet(list) {
+    const grid = document.getElementById('fleetGrid');
+    if (!list.length) { grid.innerHTML = '<div class="empty">No cars found.</div>'; return; }
+    grid.innerHTML = list.map((c, i) => {
+      const avail    = c.currentStock > 0;
+      const isCustom = c.source === 'custom'; // Only admin-added cars have source: 'custom'
+      return `<div class="fleet-card">
+        <div class="fleet-card-top">
+          <div>
+            <div class="fleet-car-name">${c.brand} ${c.carModel}</div>
+            <div class="fleet-meta">${c.carType} · ${c.yearOfManufacture} · $${c.pricePerDay}/day</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">
+            <span class="badge ${avail ? 'badge-green' : 'badge-red'}">${avail ? 'Available' : 'Out'}</span>
+            ${isCustom ? '<span class="badge badge-custom" style="font-size:.58rem;">Custom</span>' : ''}
+          </div>
+        </div>
+        <div class="fleet-stock">
+          <div>
+            <div style="font-size:.62rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:2px;">Stock</div>
+            <div class="stock-num" id="stk-${i}">${c.currentStock}</div>
+          </div>
+          <div class="stock-controls">
+            <button class="stock-btn" onclick="adjustStock(${i},-1)">−</button>
+            <button class="stock-btn" onclick="adjustStock(${i},+1)">+</button>
+          </div>
+          <div style="font-size:.72rem;color:var(--muted);margin-left:.3rem;">
+            <span style="color:rgba(212,175,55,.6)">Base: ${c.inStore}</span>
+          </div>
+          ${isCustom ? `<button class="act-btn del-custom" style="margin-left:auto" onclick="deleteCustomCar('${c._docId}')">Delete</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── ADD CAR ────────────────────────────────────────────────────────
+  // Stores the most recently AI-generated image data URL.
+  // Set by generateCarImage(), used by submitAddCar().
+  // Reset to null each time the modal opens.
+  let generatedImageDataUrl = null;
+
+  // ── GENERATE CAR IMAGE (DALL-E 3) ──────────────────────────────────
+  // Calls our Express endpoint /api/generate-car-image, which proxies
+  // the request to OpenAI DALL-E 3 and returns a compressed base64 JPEG.
+  // The image is previewed inside the form so the admin can regenerate
+  // if the result is unsatisfactory before saving the car.
+  async function generateCarImage() {
+    const brand = document.getElementById('ac-brand').value.trim();
+    const model = document.getElementById('ac-model').value.trim();
+    const type  = document.getElementById('ac-type').value;
+    const year  = document.getElementById('ac-year').value.trim();
+    const fuel  = document.getElementById('ac-fuel').value;
+
+    // Require at least brand + model so the prompt is meaningful
+    if (!brand || !model) {
+      document.getElementById('ac-err-img').textContent = 'Fill in Brand and Model first.';
+      return;
+    }
+    document.getElementById('ac-err-img').textContent = '';
+
+    const btn = document.getElementById('acGenImgBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Generating… (10–20 sec)';
+    generatedImageDataUrl = null;                                          // Clear previous result
+    document.getElementById('acImgPreviewWrap').style.display = 'none';   // Hide old preview
+
+    try {
+      // POST car details to our server; server builds the DALL-E prompt and returns the image
+      const res = await fetch('/api/generate-car-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand, model, type, year, fuel })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        // Show the error message from the server (rate limit, OpenAI error, etc.)
+        document.getElementById('ac-err-img').textContent = 'Generation failed: ' + (data.error || 'Unknown error');
+      } else {
+        // Store the data URL and show it in the preview <img>
+        generatedImageDataUrl = data.imageUrl;
+        document.getElementById('acImgPreview').src = generatedImageDataUrl;
+        document.getElementById('acImgPreviewWrap').style.display = 'block';
+        btn.textContent = '✦ Regenerate Image'; // Label switches to indicate it can be retried
+      }
+    } catch(e) {
+      document.getElementById('ac-err-img').textContent = 'Network error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      // If generation failed, reset button label back to the original
+      if (!generatedImageDataUrl) btn.textContent = '✦ Generate Image with AI';
+    }
+  }
+
+  // ── GENERATE CAR DESCRIPTION (GPT-4o-mini) ──────────────────────────
+  // Calls /api/generate-car-description which uses OpenAI Chat Completions
+  // to write a 3–4 sentence luxury marketing blurb for the vehicle.
+  // Auto-fills the Description textarea; the admin can edit it freely after.
+  async function generateCarDescription() {
+    const brand   = document.getElementById('ac-brand').value.trim();
+    const model   = document.getElementById('ac-model').value.trim();
+    const type    = document.getElementById('ac-type').value;
+    const year    = document.getElementById('ac-year').value.trim();
+    const fuel    = document.getElementById('ac-fuel').value;
+    const mileage = document.getElementById('ac-mileage').value.trim();
+    const price   = document.getElementById('ac-price').value.trim();
+
+    // Require at least brand + model so the prompt is meaningful
+    if (!brand || !model) {
+      document.getElementById('ac-err-desc').textContent = 'Fill in Brand and Model first.';
+      return;
+    }
+    document.getElementById('ac-err-desc').textContent = '';
+
+    const btn = document.getElementById('acGenDescBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Writing… (5–10 sec)';
+
+    try {
+      const res = await fetch('/api/generate-car-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand, model, type, year, fuel, mileage, price })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        document.getElementById('ac-err-desc').textContent = 'Generation failed: ' + (data.error || 'Unknown error');
+      } else {
+        // Auto-fill the textarea with the AI-generated description
+        document.getElementById('ac-desc').value = data.description;
+        btn.textContent = '✦ Regenerate Description';
+      }
+    } catch(e) {
+      document.getElementById('ac-err-desc').textContent = 'Network error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      if (!document.getElementById('ac-desc').value) btn.textContent = '✦ Generate Description with AI';
+    }
+  }
+
+  // ── GENERATE VIN ────────────────────────────────────────────────────
+  // Creates a random 17-character alphanumeric string used as the
+  // unique vehicle identifier for admin-added custom cars.
+  // Avoids visually ambiguous characters (I, O, Q) as per real VIN standards.
+  function genVin() {
+    const ch = 'ABCDEFGHJKLMNPRSTUVWXYZabcdefghjkmnprstuvwxyz0123456789';
+    return Array.from({ length: 17 }, () => ch[Math.floor(Math.random() * ch.length)]).join('');
+  }
+
+  // ── OPEN ADD CAR MODAL ──────────────────────────────────────────────
+  // Resets every field and error message in the Add Car form,
+  // then shows the modal overlay.
+  function openAddCar() {
+    // Clear all text inputs
+    ['ac-brand','ac-model','ac-year','ac-mileage','ac-price','ac-stock','ac-desc'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = ''; el.classList.remove('err');
+    });
+    document.getElementById('ac-type').value = '';
+    document.getElementById('ac-fuel').value = '';
+
+    // Clear all inline validation error messages
+    ['ac-err-brand','ac-err-model','ac-err-type','ac-err-fuel','ac-err-year','ac-err-price','ac-err-stock','ac-err-img']
+      .forEach(id => { document.getElementById(id).textContent = ''; });
+
+    // Reset AI image state
+    generatedImageDataUrl = null;
+    document.getElementById('acImgPreviewWrap').style.display = 'none';
+    document.getElementById('acImgPreview').src = '';
+    const genBtn = document.getElementById('acGenImgBtn');
+    genBtn.disabled = false; genBtn.textContent = '✦ Generate Image with AI';
+
+    // Reset AI description button and error
+    const descBtn = document.getElementById('acGenDescBtn');
+    descBtn.disabled = false; descBtn.textContent = '✦ Generate Description with AI';
+    document.getElementById('ac-err-desc').textContent = '';
+
+    // Reset submit button
+    const btn = document.getElementById('acSubmitBtn');
+    btn.disabled = false; btn.textContent = 'ADD VEHICLE';
+
+    document.getElementById('addCarOverlay').classList.add('open');
+  }
+
+  // Closes the Add Car modal
+  function closeAddCar() {
+    document.getElementById('addCarOverlay').classList.remove('open');
+  }
+
+  // Clicking the backdrop (outside the modal box) also closes it
+  document.getElementById('addCarOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAddCar();
+  });
+
+  // ── SUBMIT ADD CAR ──────────────────────────────────────────────────
+  // Validates all form fields, builds a car object, and writes it to
+  // the Firestore 'customCars' collection.
+  // The image field uses the AI-generated data URL if one was created,
+  // otherwise falls back to a default placeholder image.
+  async function submitAddCar() {
+    // Read all form values
+    const brand   = document.getElementById('ac-brand').value.trim();
+    const model   = document.getElementById('ac-model').value.trim();
+    const type    = document.getElementById('ac-type').value;
+    const fuel    = document.getElementById('ac-fuel').value;
+    const year    = parseInt(document.getElementById('ac-year').value);
+    const price   = parseFloat(document.getElementById('ac-price').value);
+    const stock   = parseInt(document.getElementById('ac-stock').value);
+    const desc    = document.getElementById('ac-desc').value.trim();
+    const mileage = document.getElementById('ac-mileage').value.trim();
+
+    // Validate — setErr shows the error span, clrErr clears it
+    let valid = true;
+    const setErr = (id, msg) => { document.getElementById(id).textContent = msg; valid = false; };
+    const clrErr = id        => { document.getElementById(id).textContent = ''; };
+
+    brand  ? clrErr('ac-err-brand') : setErr('ac-err-brand', 'Required');
+    model  ? clrErr('ac-err-model') : setErr('ac-err-model', 'Required');
+    type   ? clrErr('ac-err-type')  : setErr('ac-err-type',  'Required');
+    fuel   ? clrErr('ac-err-fuel')  : setErr('ac-err-fuel',  'Required');
+    (year >= 1990 && year <= 2030) ? clrErr('ac-err-year')  : setErr('ac-err-year',  'Enter a valid year (1990–2030)');
+    (price > 0)                    ? clrErr('ac-err-price') : setErr('ac-err-price', 'Enter a valid price');
+    (stock >= 0 && !isNaN(stock))  ? clrErr('ac-err-stock') : setErr('ac-err-stock', 'Enter a valid stock');
+
+    if (!valid) return; // Stop here and show errors if any field is invalid
+
+    const btn = document.getElementById('acSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Saving…'; // Disable button to prevent double submission
+
+    // Build the Firestore document.
+    // source: 'custom' distinguishes these from JSON cars in the fleet grid.
+    // createdAt: Date.now() gives a sortable timestamp (epoch ms).
+    const car = {
+      brand, carModel: model, carType: type, fuelType: fuel,
+      yearOfManufacture: year, mileage: mileage || '—',
+      pricePerDay: price, inStore: stock, available: stock > 0,
+      image: generatedImageDataUrl || '../assets/cars/models/default-car.png',
+      description: desc, vin: genVin(),
+      source: 'custom', createdAt: Date.now()
+    };
+
+    try {
+      await db.collection('customCars').add(car); // Firestore auto-generates the doc ID
+      closeAddCar();
+      showToast(`${brand} ${model} added to fleet!`);
+      fleetData = []; // Clear in-memory data so loadFleet() fetches fresh
+      await loadFleet(); // Reload and re-render the fleet section
+    } catch(e) {
+      showToast('Error: ' + e.message);
+      btn.disabled = false; btn.textContent = 'ADD VEHICLE';
+    }
+  }
+
+  // ── DELETE CUSTOM CAR ───────────────────────────────────────────────
+  // Permanently removes a custom car from the 'customCars' Firestore collection.
+  // Uses the Firestore document ID (stored as _docId on the in-memory object).
+  // Only available for custom cars — JSON base-fleet cars cannot be deleted.
+  async function deleteCustomCar(docId) {
+    if (!confirm('Remove this custom vehicle from the fleet? This cannot be undone.')) return;
+    try {
+      await db.collection('customCars').doc(docId).delete();
+      showToast('Vehicle removed from fleet.');
+      fleetData = [];
+      await loadFleet(); // Re-render fleet without the deleted car
+    } catch(e) {
+      showToast('Error: ' + e.message);
+    }
+  }
+
+  // ── ADJUST STOCK ────────────────────────────────────────────────────
+  // Increments or decrements a car's stock by delta (+1 or -1).
+  // Updates:
+  //   1. The visible stock number element (#stk-N) — instant UI feedback
+  //   2. The in-memory fleetData array — so sort/filter stays consistent
+  //   3. The fleetOverrides Firestore document — persisted for all users
+  async function adjustStock(listIdx, delta) {
+    const allRendered = getFilteredFleet(); // The visible filtered list (may differ from fleetData)
+    const car = allRendered[listIdx];
+    if (!car) return;
+    const newStock = Math.max(0, car.currentStock + delta); // Never go below 0
+    car.currentStock = newStock;
+
+    // Sync the change back to the master fleetData array
+    const master = fleetData.find(c => c.vin === car.vin);
+    if (master) master.currentStock = newStock;
+
+    // Instantly update the visible stock number on the card
+    document.getElementById('stk-' + listIdx).textContent = newStock;
+
+    // Update the availability badge colour: green = in stock, red = out
+    const visibleCards = document.querySelectorAll('.fleet-card');
+    const badge = visibleCards[listIdx]?.querySelector('.badge');
+    if (badge) {
+      badge.className = 'badge ' + (newStock > 0 ? 'badge-green' : 'badge-red');
+      badge.textContent = newStock > 0 ? 'Available' : 'Out';
+    }
+
+    // Persist the new stock value to Firestore.
+    // { merge: true } ensures we only update this car's entry, not overwrite others.
+    try {
+      await db.collection('fleetOverrides').doc('overrides').set({ [car.vin]: newStock }, { merge: true });
+      renderOverview(); // Refresh overview stats so "available units" stays accurate
+    } catch(e) { showToast('Could not save: ' + e.message); }
+  }
+
+  // ── FILTER FLEET ────────────────────────────────────────────────────
+  // Returns the subset of fleetData that matches the search box + type dropdown.
+  // Used by both renderFleet (re-render cards) and adjustStock (map index to car).
+  function getFilteredFleet() {
+    const q  = document.getElementById('fleetSearch').value.toLowerCase();
+    const tp = document.getElementById('fleetType').value;
+    return fleetData.filter(c => {
+      const txt = (c.brand + ' ' + c.carModel).toLowerCase();
+      return (!q || txt.includes(q)) && (!tp || c.carType === tp);
+    });
+  }
+
+  // Called by the search input and type dropdown to re-render fleet cards
+  function filterFleet() { renderFleet(getFilteredFleet()); }
+
+  // ── USERS — LOAD ────────────────────────────────────────────────────
+  // Fetches all documents from the 'users' Firestore collection.
+  // Each document's ID is the Firebase Auth UID so we can join with orders.
+  async function loadUsers() {
+    try {
+      const snap = await db.collection('users').get();
+      allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    } catch(e) { allUsers = []; }
+    renderUsers(allUsers);
+  }
+
+  // ── USERS — RENDER ─────────────────────────────────────────────────
+  // Builds the users table. Each row shows the user's contact details,
+  // booking count, and total amount spent (cancelled orders excluded).
+  // Each user row has a collapsible "History" sub-table embedded beneath it.
+  function renderUsers(list) {
+    const tb = document.getElementById('usersTbl');
+    if (!list.length) { tb.innerHTML = '<tr><td colspan="8" class="empty">No users found.</td></tr>'; return; }
+    let rows = '';
+    list.forEach((u, i) => {
+      // Cross-join users with bookings by matching uid OR email
+      // (older bookings may only store email, not uid)
+      const userBookings = allBookings.filter(b =>
+        (b.userId === u.uid) || (b.userEmail || b.user?.email || '') === (u.email || '')
+      );
+
+      // Sum total spending excluding cancelled bookings
+      const spent = userBookings
+        .filter(b => b.status !== 'cancelled')
+        .reduce((acc, b) =>
+          acc + parseFloat(String(b.rental?.totalPrice || b.totalPrice || 0).replace(/,/g, '')), 0);
+
+      // Format the account creation date — createdAt may be a Firestore Timestamp or a string
+      const joined = u.createdAt?.toDate
+        ? u.createdAt.toDate().toLocaleDateString()
+        : '—';
+
+      // Each user gets a unique row ID for their booking history sub-table
+      const rowId = 'ubk-' + i;
+      rows += `<tr>
+        <td>${u.name || '—'}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${u.email || '—'}</td>
+        <td style="font-size:.75rem">${u.contact || u.phone || '—'}</td>
+        <td style="font-size:.75rem">${u.driversLicense || u.license || '—'}</td>
+        <td><span class="badge badge-gold">${userBookings.filter(b => b.status !== 'cancelled').length}</span></td>
+        <td>${fmtPrice(spent)}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${joined}</td>
+        <td>${userBookings.length
+          ? `<button class="act-btn approve" style="white-space:nowrap" onclick="toggleUserBookings('${rowId}')">History</button>`
+          : '—'}
+        </td>
+      </tr>`;
+
+      // Collapsible sub-table row — hidden by default, toggled by the History button
+      if (userBookings.length) {
+        rows += `<tr id="${rowId}" style="display:none;background:rgba(212,175,55,.04)">
+          <td colspan="8" style="padding:0">
+            <table style="width:100%;border-collapse:collapse">
+              <thead><tr style="background:rgba(0,0,0,.3)">
+                <th style="padding:.4rem .7rem;font-size:.7rem;color:var(--muted);text-align:left">Car</th>
+                <th style="padding:.4rem .7rem;font-size:.7rem;color:var(--muted);text-align:left">Start</th>
+                <th style="padding:.4rem .7rem;font-size:.7rem;color:var(--muted);text-align:left">Days</th>
+                <th style="padding:.4rem .7rem;font-size:.7rem;color:var(--muted);text-align:left">Total</th>
+                <th style="padding:.4rem .7rem;font-size:.7rem;color:var(--muted);text-align:left">Status</th>
+              </tr></thead>
+              <tbody>
+                ${userBookings.map(b => {
+                  const st  = bookingStatus(b);
+                  const car = `${b.car?.brand || ''} ${b.car?.carModel || b.carModel || '—'}`.trim();
+                  const start = b.rental?.startDate || b.rental?.pickupDate || '—';
+                  const days  = b.rental?.rentalPeriod || b.rental?.days || '—';
+                  const tot   = fmtPrice(b.rental?.totalPrice || b.totalPrice);
+                  return `<tr>
+                    <td style="padding:.4rem .7rem;font-size:.75rem">${car}</td>
+                    <td style="padding:.4rem .7rem;font-size:.75rem">${start}</td>
+                    <td style="padding:.4rem .7rem;font-size:.75rem">${days}</td>
+                    <td style="padding:.4rem .7rem;font-size:.75rem">${tot}</td>
+                    <td style="padding:.4rem .7rem"><span class="badge ${st.cls}" style="font-size:.65rem">${st.label}</span></td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </td>
+        </tr>`;
+      }
+    });
+    tb.innerHTML = rows;
+  }
+
+  // ── TOGGLE USER BOOKING HISTORY ─────────────────────────────────────
+  // Shows or hides the collapsible booking history row beneath a user row
+  function toggleUserBookings(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+  }
+
+  // ── FILTER USERS ────────────────────────────────────────────────────
+  // Searches across name, email, contact number fields simultaneously
+  function filterUsers() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    const filtered = allUsers.filter(u =>
+      [u.name, u.email, u.contact, u.phone].join(' ').toLowerCase().includes(q)
+    );
+    renderUsers(filtered);
+  }
+
+  // ── OVERVIEW STATS ─────────────────────────────────────────────────
+  // Computes and renders the four stat cards on the Overview tab:
+  //   • Total Bookings (excluding cancelled)
+  //   • Total Revenue  (excluding cancelled)
+  //   • Registered Users
+  //   • Available Stock units (and distinct models count)
+  function renderOverview() {
+    const nonCancelled  = allBookings.filter(b => b.status !== 'cancelled');
+    const totalBookings  = nonCancelled.length;
+    const activeBookings = nonCancelled.filter(b => isDateActive(b)).length;      // In rental window today
+    const totalRevenue   = nonCancelled.reduce((acc, b) =>
+      acc + parseFloat(String(b.rental?.totalPrice || b.totalPrice || 0).replace(/,/g, '')), 0);
+    const totalUsers   = allUsers.length;
+    const totalModels  = fleetData.length;                                         // Total distinct car models
+    const availModels  = fleetData.filter(c => c.currentStock > 0).length;        // Models with stock > 0
+    const totalUnits   = fleetData.reduce((sum, c) => sum + (c.currentStock || 0), 0); // Sum of all units
+
+    document.getElementById('overviewStats').innerHTML = [
+      { label: 'Total Bookings',    value: totalBookings,         sub: `${activeBookings} active` },
+      { label: 'Total Revenue',     value: '$' + totalRevenue.toLocaleString('en-US', {maximumFractionDigits:0}), sub: 'excl. cancellations' },
+      { label: 'Registered Users',  value: totalUsers,            sub: 'in Firestore' },
+      { label: 'Available Units',   value: totalUnits.toLocaleString(), sub: `${availModels} of ${totalModels} models in stock` },
+    ].map(s => `<div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub">${s.sub}</div>
+    </div>`).join('');
+  }
+
+  // ── REVENUE ANALYTICS ──────────────────────────────────────────────
+  // Populates three areas of the Revenue tab:
+  //   1. Summary stat cards (total, avg value, active, completed, cancellations)
+  //   2. Top 10 cars by revenue — aggregated from all non-cancelled bookings
+  //   3. Monthly breakdown — grouped by calendar month, newest first
+  function renderRevenue() {
+    const validBookings = allBookings.filter(b => b.status !== 'cancelled');
+    const cancelled     = allBookings.filter(b => b.status === 'cancelled').length;
+
+    const total     = validBookings.reduce((a, b) =>
+      a + parseFloat(String(b.rental?.totalPrice || b.totalPrice || 0).replace(/,/g, '')), 0);
+    const active    = validBookings.filter(b => isDateActive(b)).length;           // Currently in rental window
+    const completed = validBookings.filter(b => isDateCompleted(b)).length;        // Return date has passed
+    const avgVal    = validBookings.length ? total / validBookings.length : 0;     // Mean booking value
+
+    // Render the 5 revenue stat cards
+    document.getElementById('revenueStats').innerHTML = [
+      { label: 'Total Revenue',       value: '$' + total.toLocaleString('en-US', {maximumFractionDigits:0}) },
+      { label: 'Avg Booking Value',   value: '$' + avgVal.toLocaleString('en-US', {maximumFractionDigits:0}) },
+      { label: 'Active Rentals',      value: active },
+      { label: 'Completed Rentals',   value: completed },
+      { label: 'Cancellations',       value: cancelled },
+    ].map(s => `<div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+    </div>`).join('');
+
+    // ── TOP CARS ──────────────────────────────────────────────────────
+    // Aggregate booking count, total revenue, and average days per car model.
+    // Sort by revenue descending, show top 10.
+    const carMap = {};
+    validBookings.forEach(b => {
+      const key = b.car?.carModel || b.carModel || 'Unknown';
+      if (!carMap[key]) carMap[key] = { count: 0, rev: 0, days: [] };
+      carMap[key].count++;
+      carMap[key].rev += parseFloat(String(b.rental?.totalPrice || b.totalPrice || 0).replace(/,/g, ''));
+      carMap[key].days.push(parseInt(b.rental?.rentalPeriod || b.rental?.days || b.days || 0));
+    });
+    const sorted = Object.entries(carMap).sort((a,b) => b[1].rev - a[1].rev).slice(0, 10);
+    document.getElementById('topCarsTbl').innerHTML = sorted.length
+      ? sorted.map(([car, d], i) => {
+          const avgDays = d.days.length ? (d.days.reduce((a,b)=>a+b,0)/d.days.length).toFixed(1) : '—';
+          return `<tr>
+            <td style="color:var(--muted)">${i+1}</td>
+            <td>${car}</td>
+            <td><span class="badge badge-gold">${d.count}</span></td>
+            <td>${fmtPrice(d.rev)}</td>
+            <td>${avgDays} days</td>
+          </tr>`;
+        }).join('')
+      : '<tr><td colspan="5" class="empty">No data yet.</td></tr>';
+
+    // ── MONTHLY BREAKDOWN ─────────────────────────────────────────────
+    // Groups bookings by the month they were created (Firestore Timestamp → JS Date).
+    // Falls back to rental pickup date if createdAt is missing.
+    // Sorted newest month first, limited to the last 12 months.
+    const monthMap = {};
+    validBookings.forEach(b => {
+      const raw = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || b.rental?.pickupDate || '');
+      if (isNaN(raw)) return; // Skip records with unparseable dates
+      const key = raw.toLocaleDateString('en-US', { month:'short', year:'numeric' });
+      if (!monthMap[key]) monthMap[key] = { count: 0, rev: 0 };
+      monthMap[key].count++;
+      monthMap[key].rev += parseFloat(String(b.rental?.totalPrice || b.totalPrice || 0).replace(/,/g, ''));
+    });
+    const months = Object.entries(monthMap).sort((a,b) => new Date('1 '+b[0]) - new Date('1 '+a[0])).slice(0,12);
+    document.getElementById('monthlyTbl').innerHTML = months.length
+      ? months.map(([m, d]) => `<tr>
+          <td>${m}</td>
+          <td><span class="badge badge-gold">${d.count}</span></td>
+          <td>${fmtPrice(d.rev)}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="3" class="empty">No data yet.</td></tr>';
+  }
+
+  // ── TOAST NOTIFICATION ─────────────────────────────────────────────
+  // Shows a brief notification at the bottom of the screen (3.2 seconds).
+  // Used for success and error feedback throughout the admin panel.
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+</script>
+</body>
+</html>

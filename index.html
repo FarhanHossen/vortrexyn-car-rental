@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | VORTREXYN</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── Splash Screen ─── */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #06060f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      pointer-events: all;
+    }
+
+    #splash.exit {
+      animation: splashFadeOut 0.8s ease forwards;
+    }
+
+    @keyframes splashFadeOut {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.04); }
+    }
+
+    /* ─── Logo SVG ─── */
+    #logo-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin-bottom: 28px;
+    }
+
+    /* Glow ring */
+    #glow-ring {
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%);
+      opacity: 0;
+      animation: glowPulse 2s ease 0.6s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* SVG path draw-in */
+    .logo-path {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: drawPath 0.9s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+    }
+
+    .logo-fill {
+      opacity: 0;
+      animation: fillFade 0.5s ease 0.9s forwards;
+    }
+
+    .speed-line {
+      stroke-dasharray: 80;
+      stroke-dashoffset: 80;
+    }
+
+    .speed-line-1 { animation: drawPath 0.4s ease 1.0s forwards,  speedShimmer 2s ease-in-out 1.8s infinite alternate; }
+    .speed-line-2 { animation: drawPath 0.4s ease 1.15s forwards, speedShimmer 2s ease-in-out 2.0s infinite alternate; }
+    .speed-line-3 { animation: drawPath 0.4s ease 1.3s forwards,  speedShimmer 2s ease-in-out 2.2s infinite alternate; }
+
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes fillFade {
+      to { opacity: 1; }
+    }
+
+    /* ─── App name letters ─── */
+    #app-name {
+      display: flex;
+      gap: 2px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: #fff;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    #app-name span {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    #app-name span:nth-child(1) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.1s forwards; }
+    #app-name span:nth-child(2) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.19s forwards; }
+    #app-name span:nth-child(3) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.28s forwards; }
+    #app-name span:nth-child(4) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.37s forwards; }
+    #app-name span:nth-child(5) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.46s forwards; }
+    #app-name span:nth-child(6) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.55s forwards; }
+    #app-name span:nth-child(7) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.64s forwards; }
+    #app-name span:nth-child(8) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.73s forwards; }
+    #app-name span:nth-child(9) { animation: letterUp 0.5s cubic-bezier(0.23,1,0.32,1) 1.82s forwards; }
+
+    @keyframes letterUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Gold underline */
+    #app-underline {
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+      border-radius: 1px;
+      margin-bottom: 14px;
+      animation: lineExpand 0.6s ease 1.9s forwards;
+    }
+
+    @keyframes lineExpand {
+      to { width: 300px; }
+    }
+
+    /* Tagline */
+    #tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      opacity: 0;
+      animation: fadeIn 0.8s ease 2.5s forwards;
+    }
+
+    /* Loading bar */
+    #loader-track {
+      position: absolute;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    #loader-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #D4AF37, #F5D060);
+      border-radius: 1px;
+      animation: loadBar 2.6s cubic-bezier(0.4,0,0.2,1) 0.4s forwards;
+    }
+
+    @keyframes loadBar {
+      0%   { width: 0%; }
+      60%  { width: 75%; }
+      80%  { width: 88%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Particle dots */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: #D4AF37;
+      opacity: 0;
+      animation: particleDrift var(--dur) ease var(--delay) infinite;
+    }
+
+    @keyframes particleDrift {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+      30%  { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-120px) scale(1.2); }
+    }
+
+    /* ─── Split Layout Styles ─── */
+
+    @keyframes carFloat {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    .login-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-input-icon {
+      position: absolute;
+      left: 14px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 16px 12px 42px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+
+    .login-input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .login-input:focus {
+      border-color: rgba(212,175,55,0.65);
+      background: rgba(212,175,55,0.05);
+    }
+
+    .login-error {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.7rem;
+      font-family: 'Inter', sans-serif;
+      color: rgba(247,55,79,1);
+      font-weight: 600;
+    }
+
+    .login-error.hidden { display: none; }
+
+    .login-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 20px;
+      background: linear-gradient(135deg, #D4AF37, #F5D060);
+      border: none;
+      border-radius: 8px;
+      color: #06060f;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      margin-top: 4px;
+    }
+
+    .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .login-btn:active { transform: translateY(0); }
+
+    /* Eye toggle */
+    .eye-toggle {
+      position: absolute; right: 12px; background: none; border: none;
+      cursor: pointer; padding: 4px; color: rgba(212,175,55,0.45);
+      display: flex; align-items: center; transition: color 0.2s;
+    }
+    .eye-toggle:hover { color: rgba(212,175,55,0.9); }
+    .login-input.has-toggle { padding-right: 44px; }
+
+    /* Remember me */
+    .remember-row { display:flex; align-items:center; gap:8px; }
+    .remember-row input[type="checkbox"] { width:15px; height:15px; accent-color:#D4AF37; cursor:pointer; }
+    .remember-row label { font-size:0.72rem; color:rgba(255,255,255,0.45); cursor:pointer; font-family:'Inter',sans-serif; user-select:none; }
+
+
+    /* ─── Continuous Logo Animations ─── */
+
+    /* Speed line shimmer (alternates between dim and bright) */
+    @keyframes speedShimmer {
+      from { opacity: 0.1; }
+      to   { opacity: 0.95; }
+    }
+
+    /* Splash logo: glow breathe, starts after draw-in completes */
+    #splash-logo {
+      animation: logoGlowBreath 3s ease-in-out 2s infinite;
+    }
+    @keyframes logoGlowBreath {
+      0%, 100% { filter: drop-shadow(0 0 4px rgba(212,175,55,0.2)); }
+      50%       { filter: drop-shadow(0 0 20px rgba(212,175,55,0.95)) drop-shadow(0 0 40px rgba(212,175,55,0.5)); }
+    }
+
+    /* Login logo: continuous glow breathe */
+    #login-logo {
+      overflow: visible;
+      animation: loginGlowBreath 3s ease-in-out infinite;
+    }
+    @keyframes loginGlowBreath {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(212,175,55,0.25)); }
+      50%       { filter: drop-shadow(0 0 16px rgba(212,175,55,1)) drop-shadow(0 0 30px rgba(212,175,55,0.5)); }
+    }
+
+    /* Login logo: outer hex ring slow spin */
+    #login-logo .hex-outer {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: hexRingSpin 10s linear infinite;
+    }
+    @keyframes hexRingSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* Login logo: speed lines continuous shimmer (staggered) */
+    #login-logo .sl-a { animation: speedShimmer 1.8s ease-in-out infinite alternate; }
+    #login-logo .sl-b { animation: speedShimmer 1.8s ease-in-out 0.3s infinite alternate; }
+    #login-logo .sl-c { animation: speedShimmer 1.8s ease-in-out 0.6s infinite alternate; }
+    #login-logo .sl-d { animation: speedShimmer 1.8s ease-in-out 0.9s infinite alternate-reverse; }
+    #login-logo .sl-e { animation: speedShimmer 1.8s ease-in-out 1.2s infinite alternate-reverse; }
+    #login-logo .sl-f { animation: speedShimmer 1.8s ease-in-out 1.5s infinite alternate-reverse; }
+
+    /* Login logo: V mark subtle pulse */
+    #login-logo .v-mark {
+      animation: vMarkPulse 3s ease-in-out 0.5s infinite;
+    }
+    @keyframes vMarkPulse {
+      0%, 100% { stroke-opacity: 0.75; }
+      50%       { stroke-opacity: 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen overflow-hidden" style="background:#06060f;">
+
+  <!-- ══════════════════ SPLASH SCREEN ══════════════════ -->
+  <div id="splash">
+    <!-- Floating particles -->
+    <div class="particle" style="width:3px;height:3px;left:20%;bottom:30%;--dur:3.2s;--delay:0.5s;"></div>
+    <div class="particle" style="width:2px;height:2px;left:35%;bottom:20%;--dur:4s;--delay:1.1s;"></div>
+    <div class="particle" style="width:4px;height:4px;left:65%;bottom:25%;--dur:3.6s;--delay:0.2s;"></div>
+    <div class="particle" style="width:2px;height:2px;left:78%;bottom:35%;--dur:4.5s;--delay:1.8s;"></div>
+    <div class="particle" style="width:3px;height:3px;left:50%;bottom:15%;--dur:3s;--delay:0.9s;"></div>
+    <div class="particle" style="width:2px;height:2px;left:12%;bottom:40%;--dur:5s;--delay:2.1s;"></div>
+
+    <!-- Logo mark -->
+    <div id="logo-wrap">
+      <div id="glow-ring"></div>
+      <svg id="splash-logo" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" width="140" height="140" style="overflow:visible;">
+        <defs>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#F5D060"/>
+            <stop offset="50%"  stop-color="#D4AF37"/>
+            <stop offset="100%" stop-color="#A07C10"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Outer hexagon ring -->
+        <polygon
+          class="logo-path"
+          points="70,8 125,38 125,102 70,132 15,102 15,38"
+          fill="none"
+          stroke="url(#goldGrad)"
+          stroke-width="2.5"
+          stroke-linejoin="round"
+          filter="url(#glow)"
+        />
+
+        <!-- Inner hexagon filled (fades in) -->
+        <polygon
+          class="logo-fill"
+          points="70,18 116,44 116,96 70,122 24,96 24,44"
+          fill="rgba(212,175,55,0.06)"
+        />
+
+        <!-- Bold V shape (stroke draw-in) -->
+        <polyline
+          class="logo-path"
+          points="38,45 70,95 102,45"
+          fill="none"
+          stroke="url(#goldGrad)"
+          stroke-width="9"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          filter="url(#glow)"
+          style="animation-delay: 0.4s;"
+        />
+
+        <!-- Speed lines (left of V) -->
+        <line class="speed-line speed-line-1" x1="24" y1="60" x2="42" y2="60"
+          stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <line class="speed-line speed-line-2" x1="24" y1="70" x2="38" y2="70"
+          stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round" opacity="0.45"/>
+        <line class="speed-line speed-line-3" x1="24" y1="80" x2="35" y2="80"
+          stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round" opacity="0.25"/>
+
+        <!-- Speed lines (right of V) -->
+        <line class="speed-line speed-line-1" x1="116" y1="60" x2="98" y2="60"
+          stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+        <line class="speed-line speed-line-2" x1="116" y1="70" x2="102" y2="70"
+          stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round" opacity="0.45"/>
+        <line class="speed-line speed-line-3" x1="116" y1="80" x2="105" y2="80"
+          stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round" opacity="0.25"/>
+      </svg>
+    </div>
+
+    <!-- App name -->
+    <div id="app-name">
+      <span>V</span><span>O</span><span>R</span><span>T</span><span>R</span><span>E</span><span>X</span><span>Y</span><span>N</span>
+    </div>
+
+    <!-- Gold underline -->
+    <div id="app-underline"></div>
+
+    <!-- Tagline -->
+    <p id="tagline">PREMIUM CAR RENTAL</p>
+
+    <!-- Loading bar -->
+    <div id="loader-track">
+      <div id="loader-bar"></div>
+    </div>
+  </div>
+  <!-- ══════════════════ END SPLASH ══════════════════ -->
+
+  <!-- ══════════ MAIN SPLIT LAYOUT ══════════ -->
+  <div class="flex min-h-screen">
+
+    <!-- ── LEFT HERO PANEL ── -->
+    <div class="hidden lg:flex lg:w-7/12 relative overflow-hidden flex-col">
+
+      <!-- Background image -->
+      <div class="absolute inset-0"
+        style="background-image:url('assets/bg3.png'); background-size:cover; background-position:center;"></div>
+
+      <!-- Dark overlay -->
+      <div class="absolute inset-0"
+        style="background:linear-gradient(135deg,rgba(6,6,15,0.92) 0%,rgba(6,6,15,0.55) 55%,rgba(6,6,15,0.88) 100%);"></div>
+
+      <!-- Subtle gold grid -->
+      <div class="absolute inset-0 opacity-5"
+        style="background-image:linear-gradient(rgba(212,175,55,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,0.4) 1px,transparent 1px); background-size:60px 60px;"></div>
+
+      <!-- Decorative vertical accent bar -->
+      <div class="absolute right-0 top-0 bottom-0 w-px"
+        style="background:linear-gradient(to bottom,transparent,rgba(212,175,55,0.5) 30%,rgba(212,175,55,0.5) 70%,transparent);"></div>
+
+      <!-- Content wrapper -->
+      <div class="relative z-10 flex flex-col justify-between h-full p-14">
+
+        <!-- Top: Brand badge -->
+        <div>
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full"
+            style="border:1px solid rgba(212,175,55,0.5); background:rgba(212,175,55,0.07);">
+            <span class="w-2 h-2 rounded-full animate-pulse" style="background:#D4AF37;"></span>
+            <span style="font-family:'Rajdhani',sans-serif; color:#D4AF37; font-size:0.65rem; letter-spacing:0.35em; font-weight:700;">PREMIUM CAR RENTAL</span>
+          </div>
+        </div>
+
+        <!-- Middle: Headline + stats -->
+        <div>
+          <p class="text-xs mb-4 tracking-widest" style="color:rgba(212,175,55,0.6); letter-spacing:0.4em;">EST. 2024</p>
+          <h1 style="font-family:'Rajdhani',sans-serif; font-size:3.4rem; font-weight:700; line-height:1.05; color:#fff;">
+            YOUR DRIVE,<br><span style="color:#D4AF37;">YOUR RULES.</span>
+          </h1>
+          <p class="mt-5 text-sm leading-relaxed" style="color:rgba(255,255,255,0.45); max-width:340px;">
+            A curated fleet of premium vehicles for every journey. Luxury, performance, and reliability — all on demand.
+          </p>
+
+          <!-- Gold rule -->
+          <div class="mt-8 mb-8 flex items-center gap-4">
+            <div class="h-px w-12" style="background:#D4AF37;"></div>
+            <div class="h-px flex-1" style="background:rgba(212,175,55,0.15);"></div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="flex gap-10">
+            <div>
+              <div style="font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; color:#D4AF37; line-height:1;">500<span style="font-size:1.2rem;">+</span></div>
+              <div class="text-xs mt-1 tracking-widest" style="color:rgba(255,255,255,0.35);">VEHICLES</div>
+            </div>
+            <div>
+              <div style="font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; color:#D4AF37; line-height:1;">24/7</div>
+              <div class="text-xs mt-1 tracking-widest" style="color:rgba(255,255,255,0.35);">SUPPORT</div>
+            </div>
+            <div>
+              <div style="font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; color:#D4AF37; line-height:1;">5<span style="font-size:1.2rem;">★</span></div>
+              <div class="text-xs mt-1 tracking-widest" style="color:rgba(255,255,255,0.35);">RATED</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: Featured car -->
+        <div class="relative" style="margin-bottom:-2rem;">
+          <div class="absolute inset-x-0 bottom-0 h-24"
+            style="background:linear-gradient(to top,rgba(6,6,15,1),transparent); z-index:1;"></div>
+          <img src="assets/sedan2.png" alt="Featured car"
+            class="w-full object-contain"
+            style="filter:drop-shadow(0 0 40px rgba(212,175,55,0.25)) drop-shadow(0 -10px 30px rgba(6,6,15,0.8)); animation:carFloat 4s ease-in-out infinite;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT LOGIN PANEL ── -->
+    <div class="w-full lg:w-5/12 flex flex-col items-center justify-center px-8 lg:px-14 py-12 relative"
+      style="background:#080814; min-height:100vh;">
+
+      <!-- Subtle dot grid -->
+      <div class="absolute inset-0 opacity-10"
+        style="background-image:radial-gradient(rgba(212,175,55,0.5) 1px,transparent 1px); background-size:28px 28px;"></div>
+
+      <!-- Top decorative bar -->
+      <div class="absolute top-0 left-0 right-0 h-px"
+        style="background:linear-gradient(to right,transparent,rgba(212,175,55,0.4),transparent);"></div>
+
+      <div class="relative w-full" style="max-width:360px;">
+
+        <!-- Logo + branding -->
+        <div class="text-center mb-8">
+          <svg id="login-logo" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg"
+            class="mx-auto mb-3" style="overflow:visible; height:88px; width:88px;">
+            <defs>
+              <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#F5D060"/>
+                <stop offset="50%"  stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#A07C10"/>
+              </linearGradient>
+            </defs>
+            <polygon class="hex-outer" points="70,8 125,38 125,102 70,132 15,102 15,38"
+              fill="none" stroke="url(#goldGrad2)" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon points="70,18 116,44 116,96 70,122 24,96 24,44"
+              fill="rgba(212,175,55,0.07)"/>
+            <polyline class="v-mark" points="38,45 70,95 102,45"
+              fill="none" stroke="url(#goldGrad2)" stroke-width="9"
+              stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="sl-a" x1="24" y1="60" x2="42" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+            <line class="sl-b" x1="24" y1="70" x2="38" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+            <line class="sl-c" x1="24" y1="80" x2="35" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+            <line class="sl-d" x1="116" y1="60" x2="98" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+            <line class="sl-e" x1="116" y1="70" x2="102" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+            <line class="sl-f" x1="116" y1="80" x2="105" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <h2 style="font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:700; color:#D4AF37; letter-spacing:0.22em; margin-bottom:1px;">VORTREXYN</h2>
+          <div style="font-size:0.58rem; font-weight:600; color:rgba(212,175,55,0.55); letter-spacing:0.45em; text-transform:uppercase; margin-bottom:2px;">PREMIUM CAR RENTAL</div>
+          <p style="font-size:0.55rem; font-weight:300; color:rgba(255,255,255,0.22); letter-spacing:0.3em; text-transform:uppercase;">Drive Beyond Limits</p>
+        </div>
+
+        <!-- Sign-in divider -->
+        <div class="flex items-center gap-3 mb-7">
+          <div class="flex-1 h-px" style="background:rgba(212,175,55,0.18);"></div>
+          <span style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(212,175,55,0.55); letter-spacing:0.35em;">SIGN IN TO CONTINUE</span>
+          <div class="flex-1 h-px" style="background:rgba(212,175,55,0.18);"></div>
+        </div>
+
+        <!-- Form -->
+        <form id="loginForm" style="display:flex; flex-direction:column; gap:18px;">
+
+          <!-- Email field -->
+          <div>
+            <label for="email" style="display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.25em; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:6px; font-family:'Inter',sans-serif;">Email</label>
+            <div class="login-input-wrap">
+              <svg class="login-input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                <path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2"/>
+                <path d="M2.5 6l7.5 5.5L17.5 6" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <input id="email" type="email" required class="login-input" placeholder="you@example.com" autocomplete="email"/>
+            </div>
+            <small id="emailError" class="login-error hidden">No user found with this email</small>
+            <small id="emailRegexError" class="login-error hidden">Please enter a valid email address</small>
+          </div>
+
+          <!-- Password field -->
+          <div>
+            <label for="password" style="display:block; font-size:0.7rem; font-weight:600; letter-spacing:0.25em; color:rgba(255,255,255,0.5); text-transform:uppercase; margin-bottom:6px; font-family:'Inter',sans-serif;">Password</label>
+            <div class="login-input-wrap">
+              <svg class="login-input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                <rect x="4" y="9" width="12" height="8" rx="1.5" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2"/>
+                <path d="M7 9V6.5a3 3 0 016 0V9" stroke="#D4AF37" stroke-opacity="0.5" stroke-width="1.2" stroke-linecap="round"/>
+                <circle cx="10" cy="13" r="1.2" fill="#D4AF37" fill-opacity="0.5"/>
+              </svg>
+              <input id="password" type="password" required class="login-input has-toggle" placeholder="••••••••••" autocomplete="current-password"/>
+              <button type="button" class="eye-toggle" id="pwToggle" onclick="togglePw('password','pwToggle')">
+                <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+                  <path d="M1 10s3.5-6.5 9-6.5S19 10 19 10s-3.5 6.5-9 6.5S1 10 1 10z" stroke="currentColor" stroke-width="1.4"/>
+                  <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+              </button>
+            </div>
+            <small id="passwordRegexError" class="login-error hidden">Min 10 chars with symbols, numbers &amp; mixed case</small>
+            <small id="passwordAuthError" class="login-error hidden">Invalid Login Credentials</small>
+          </div>
+
+          <!-- Remember me -->
+          <div class="remember-row">
+            <input type="checkbox" id="rememberMe"/>
+            <label for="rememberMe">Remember me on this device</label>
+          </div>
+
+          <!-- Sign in button -->
+          <button type="submit" class="login-btn">
+            <span>SIGN IN</span>
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="#06060f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <!-- Links -->
+          <div class="flex justify-between" style="margin-top:4px;">
+            <a href="public/forgot.html" style="font-size:0.75rem; color:rgba(247,55,79,0.85); font-family:'Inter',sans-serif; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='rgba(247,55,79,1)'" onmouseout="this.style.color='rgba(247,55,79,0.85)'">Forgot Password?</a>
+            <a href="public/signup.html" style="font-size:0.75rem; color:rgba(212,175,55,0.7); font-family:'Inter',sans-serif; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='rgba(212,175,55,0.7)'">Create Account →</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div><!-- end split layout -->
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Splash dismiss -->
+  <script>
+    const splash = document.getElementById('splash');
+    setTimeout(() => {
+      splash.classList.add('exit');
+      setTimeout(() => splash.remove(), 850);
+    }, 3300);
+  </script>
+
+  <!-- Login Logic -->
+  <script>
+    const emailRegex    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^.{6,}$/;
+
+    const emailInput        = document.getElementById('email');
+    const passwordInput     = document.getElementById('password');
+    const emailError        = document.getElementById('emailError');
+    const emailRegexError   = document.getElementById('emailRegexError');
+    const passwordRegexError= document.getElementById('passwordRegexError');
+    const passwordAuthError = document.getElementById('passwordAuthError');
+
+    // ── Eye toggle ──────────────────────────────────────────────────
+    function togglePw(inputId, btnId) {
+      const inp = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      const showing = inp.type === 'text';
+      inp.type = showing ? 'password' : 'text';
+      btn.innerHTML = showing
+        ? `<svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+             <path d="M1 10s3.5-6.5 9-6.5S19 10 19 10s-3.5 6.5-9 6.5S1 10 1 10z" stroke="currentColor" stroke-width="1.4"/>
+             <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+           </svg>`
+        : `<svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+             <path d="M1 10s3.5-6.5 9-6.5S19 10 19 10s-3.5 6.5-9 6.5S1 10 1 10z" stroke="currentColor" stroke-width="1.4"/>
+             <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+             <line x1="3" y1="3" x2="17" y2="17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+           </svg>`;
+    }
+
+    // ── Input validation listeners ───────────────────────────────────
+    passwordInput.addEventListener('input', () => {
+      passwordRegexError.classList.toggle('hidden', passwordRegex.test(passwordInput.value.trim()));
+      passwordAuthError.classList.add('hidden');
+    });
+    emailInput.addEventListener('input', () => {
+      emailRegexError.classList.toggle('hidden', emailRegex.test(emailInput.value.trim()));
+      emailError.classList.add('hidden');
+    });
+
+    // ── Helper: set persistence then run action ──────────────────────
+    function withPersistence(action) {
+      const remember = document.getElementById('rememberMe').checked;
+      const persistence = remember
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      return auth.setPersistence(persistence).then(action);
+    }
+
+    // ── Helper: redirect after any successful sign-in ────────────────
+    const ADMIN_EMAIL = 'vortrexyn.madmax@gmail.com';
+
+    function onSignedIn(userCredential) {
+      const u = userCredential.user;
+
+      // Admin goes straight to admin dashboard
+      if (u.email === ADMIN_EMAIL) {
+        window.location.href = 'public/admin.html';
+        return;
+      }
+
+      const userRef = db.collection('users').doc(u.uid);
+      // If the Firestore user doc is missing (e.g. orphaned auth account),
+      // create a minimal one so the rest of the app works correctly.
+      userRef.get().then(snap => {
+        if (!snap.exists) {
+          return userRef.set({
+            uid: u.uid,
+            name: u.displayName || '',
+            contact: u.phoneNumber || '',
+            email: u.email || '',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      }).catch(() => {}).finally(() => {
+        window.location.href = 'public/home.html';
+      });
+    }
+
+    // ── Email/password sign-in ───────────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email    = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      emailError.classList.add('hidden');
+      passwordAuthError.classList.add('hidden');
+      if (!emailRegex.test(email))    { emailRegexError.classList.remove('hidden'); return; }
+      if (!passwordRegex.test(password)) { passwordRegexError.classList.remove('hidden'); return; }
+
+      withPersistence(() => auth.signInWithEmailAndPassword(email, password))
+        .then(onSignedIn)
+        .catch(error => {
+          emailError.classList.add('hidden');
+          passwordAuthError.classList.add('hidden');
+          if (['auth/wrong-password','auth/invalid-login-credentials','auth/invalid-credential'].includes(error.code)) {
+            passwordAuthError.textContent = 'Invalid email or password.';
+            passwordAuthError.classList.remove('hidden');
+          } else if (error.code === 'auth/user-not-found') {
+            emailError.textContent = 'No account found with this email.';
+            emailError.classList.remove('hidden');
+          } else {
+            passwordAuthError.textContent = 'Something went wrong. Please try again.';
+            passwordAuthError.classList.remove('hidden');
+          }
+        });
+    });
+
+  </script>
+</body>
+</html>

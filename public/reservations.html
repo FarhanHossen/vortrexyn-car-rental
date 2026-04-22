@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserve | VORTREXYN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:    #D4AF37;
+      --gold-lt: #F5D060;
+      --gold-dk: #A07C10;
+      --bg:      #06060f;
+      --bg2:     #080814;
+      --border:  rgba(212,175,55,0.18);
+    }
+    body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* ── LOGO ANIMATIONS ── */
+    @keyframes glowBreath { 0%,100%{filter:drop-shadow(0 0 3px rgba(212,175,55,.25))} 50%{filter:drop-shadow(0 0 14px rgba(212,175,55,1)) drop-shadow(0 0 28px rgba(212,175,55,.5))} }
+    @keyframes hexSpin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes vPulse     { 0%,100%{stroke-opacity:.75} 50%{stroke-opacity:1} }
+    @keyframes shimmer    { from{opacity:.1} to{opacity:.95} }
+    #nav-logo { overflow:visible; animation:glowBreath 3s ease-in-out infinite; }
+    #nav-logo .hex-outer { transform-box:fill-box;transform-origin:center;animation:hexSpin 10s linear infinite; }
+    #nav-logo .v-mark    { animation:vPulse 3s ease-in-out .5s infinite; }
+    #nav-logo .sl-a { animation:shimmer 1.8s ease-in-out infinite alternate; }
+    #nav-logo .sl-b { animation:shimmer 1.8s ease-in-out .3s infinite alternate; }
+    #nav-logo .sl-c { animation:shimmer 1.8s ease-in-out .6s infinite alternate; }
+    #nav-logo .sl-d { animation:shimmer 1.8s ease-in-out .9s infinite alternate-reverse; }
+    #nav-logo .sl-e { animation:shimmer 1.8s ease-in-out 1.2s infinite alternate-reverse; }
+    #nav-logo .sl-f { animation:shimmer 1.8s ease-in-out 1.5s infinite alternate-reverse; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 68px;
+      background: rgba(6,6,15,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    .nav-name { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700; color:var(--gold); letter-spacing:.2em; }
+    .nav-sub  { font-size:.5rem; color:rgba(212,175,55,.5); letter-spacing:.45em; text-transform:uppercase; }
+    .nav-back {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 14px; border-radius:7px;
+      border:1px solid var(--border);
+      color:rgba(255,255,255,.55); font-size:.78rem; font-weight:600;
+      text-decoration:none; transition:all .2s;
+    }
+    .nav-back:hover { border-color:rgba(212,175,55,.4); color:#fff; background:rgba(255,255,255,.04); }
+
+    /* ── PAGE WRAP ── */
+    .page-wrap {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 2rem 60px;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .page-wrap { grid-template-columns: 1fr; }
+    }
+
+    /* ── LEFT – CAR SHOWCASE ── */
+    .car-panel {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .car-hero { position: relative; overflow: hidden; height: 260px; background: #0b0b18; }
+    .car-hero img { width:100%; height:100%; object-fit:cover; }
+    .car-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(6,6,15,1) 0%, rgba(6,6,15,0.3) 60%, transparent 100%);
+    }
+    .car-badge-row {
+      position: absolute; bottom: 14px; left: 16px; right: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .badge {
+      padding: 4px 12px; border-radius: 999px;
+      font-size: .62rem; font-weight: 700; letter-spacing: .1em;
+    }
+    .badge-type { background: rgba(6,6,15,.8); color: rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.12); backdrop-filter:blur(6px); }
+    .badge-avail { background: rgba(72,199,120,.18); color: rgba(72,199,120,1); border:1px solid rgba(72,199,120,.3); }
+    .badge-unavail { background: rgba(247,55,79,.15); color: rgba(247,55,79,1); border:1px solid rgba(247,55,79,.3); }
+
+    .car-info { padding: 20px 22px 24px; }
+
+    .car-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem; font-weight: 700; line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .car-subtitle { font-size: .75rem; color: rgba(255,255,255,.35); letter-spacing: .1em; margin-bottom: 18px; }
+
+    .specs-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .spec-item {
+      display: flex; flex-direction: column; gap: 3px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(212,175,55,.1);
+      border-radius: 8px; padding: 10px 12px;
+    }
+    .spec-label { font-size: .58rem; color: rgba(212,175,55,.55); letter-spacing: .25em; text-transform: uppercase; font-weight: 600; }
+    .spec-value { font-size: .82rem; color: rgba(255,255,255,.75); font-weight: 500; }
+
+    .desc-block {
+      padding: 14px 16px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(212,175,55,.08);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .desc-block p { font-size: .78rem; color: rgba(255,255,255,.38); line-height: 1.75; }
+
+    .price-strip {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(212,175,55,.06);
+      border: 1px solid rgba(212,175,55,.2);
+      border-radius: 10px;
+    }
+    .price-strip .label { font-size: .65rem; color: rgba(212,175,55,.6); letter-spacing: .25em; text-transform: uppercase; }
+    .price-strip .amount { font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700; color: var(--gold); }
+    .price-strip .per { font-size: .65rem; color: rgba(255,255,255,.3); margin-top: 1px; }
+    .price-strip .stock { font-size: .7rem; color: rgba(255,255,255,.3); text-align: right; }
+    .price-strip .stock strong { color: rgba(72,199,120,.8); }
+
+    /* ── RIGHT – BOOKING FORM ── */
+    .form-panel {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px 24px 28px;
+      position: sticky; top: 88px;
+    }
+
+    .form-heading {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem; font-weight: 700; letter-spacing: .12em; color: #fff;
+      margin-bottom: 4px;
+    }
+    .form-sub { font-size: .7rem; color: rgba(255,255,255,.3); letter-spacing: .05em; margin-bottom: 22px; }
+    .form-divider {
+      height: 1px; background: var(--border); margin-bottom: 20px;
+    }
+
+    /* Labels + Inputs */
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: .62rem; font-weight: 700;
+      color: rgba(255,255,255,.38); letter-spacing: .25em;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-icon { position: absolute; left: 13px; pointer-events: none; }
+    .r-input {
+      width: 100%; padding: 11px 14px 11px 40px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(212,175,55,.22);
+      border-radius: 8px;
+      color: #fff; font-family: 'Inter', sans-serif; font-size: .85rem;
+      outline: none; transition: border-color .25s, background .25s;
+    }
+    .r-input::placeholder { color: rgba(255,255,255,.2); }
+    .r-input:focus { border-color: rgba(212,175,55,.6); background: rgba(212,175,55,.04); }
+    .r-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5) sepia(1) saturate(2) hue-rotate(10deg); cursor:pointer; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Cost summary */
+    .cost-box {
+      margin: 18px 0;
+      padding: 14px 16px;
+      background: rgba(212,175,55,.05);
+      border: 1px solid rgba(212,175,55,.18);
+      border-radius: 10px;
+    }
+    .cost-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .78rem; color: rgba(255,255,255,.35);
+      padding: 4px 0;
+    }
+    .cost-row.total {
+      border-top: 1px solid rgba(212,175,55,.15);
+      margin-top: 8px; padding-top: 10px;
+      font-size: .9rem; font-weight: 600; color: rgba(255,255,255,.8);
+    }
+    .cost-row.total .val { font-family: 'Rajdhani',sans-serif; font-size: 1.35rem; color: var(--gold); font-weight: 700; }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      border: none; border-radius: 8px; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .95rem; font-weight: 700; letter-spacing: .18em;
+      color: #06060f;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s, transform .15s;
+    }
+    .submit-btn:hover  { opacity: .9; transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* Not available state */
+    .unavail-state {
+      text-align: center; padding: 30px 10px;
+    }
+    .unavail-state svg { margin: 0 auto 16px; opacity: .5; }
+    .unavail-state h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem; font-weight: 700; color: rgba(247,55,79,1);
+      letter-spacing: .1em; margin-bottom: 8px;
+    }
+    .unavail-state p { font-size: .78rem; color: rgba(255,255,255,.3); line-height: 1.7; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 18px;
+      padding: 9px 20px; border-radius: 8px;
+      border: 1px solid var(--border);
+      color: rgba(255,255,255,.5); font-size: .78rem; text-decoration: none;
+      transition: all .2s;
+    }
+    .back-link:hover { border-color: rgba(212,175,55,.4); color: #fff; }
+
+    /* No car state */
+    .no-car { text-align:center; padding:40px 20px; }
+    .no-car p { color:rgba(255,255,255,.3); font-size:.85rem; margin-bottom:16px; }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+</head>
+<body>
+
+  <!-- ══ NAVBAR ══ -->
+  <nav>
+    <a href="home.html" class="nav-brand">
+      <svg id="nav-logo" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg" style="height:38px;width:38px;overflow:visible;">
+        <defs>
+          <linearGradient id="goldGradR" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#F5D060"/>
+            <stop offset="50%"  stop-color="#D4AF37"/>
+            <stop offset="100%" stop-color="#A07C10"/>
+          </linearGradient>
+        </defs>
+        <polygon class="hex-outer" points="70,8 125,38 125,102 70,132 15,102 15,38" fill="none" stroke="url(#goldGradR)" stroke-width="2.5" stroke-linejoin="round"/>
+        <polygon points="70,18 116,44 116,96 70,122 24,96 24,44" fill="rgba(212,175,55,0.07)"/>
+        <polyline class="v-mark" points="38,45 70,95 102,45" fill="none" stroke="url(#goldGradR)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <line class="sl-a" x1="24" y1="60" x2="42" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="sl-b" x1="24" y1="70" x2="38" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sl-c" x1="24" y1="80" x2="35" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+        <line class="sl-d" x1="116" y1="60" x2="98" y2="60" stroke="#D4AF37" stroke-width="2.5" stroke-linecap="round"/>
+        <line class="sl-e" x1="116" y1="70" x2="102" y2="70" stroke="#D4AF37" stroke-width="1.8" stroke-linecap="round"/>
+        <line class="sl-f" x1="116" y1="80" x2="105" y2="80" stroke="#D4AF37" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="nav-name">VORTREXYN</div>
+        <div class="nav-sub">Premium Car Rental</div>
+      </div>
+    </a>
+    <a href="home.html" class="nav-back">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Fleet
+    </a>
+  </nav>
+
+  <!-- ══ PAGE ══ -->
+  <div class="page-wrap" id="pageWrap">
+
+    <!-- ── LEFT: CAR SHOWCASE ── -->
+    <div class="car-panel">
+      <div class="car-hero">
+        <img id="carImage" src="" alt="Selected Car" />
+        <div class="car-hero-overlay"></div>
+        <div class="car-badge-row">
+          <span class="badge badge-type" id="typeBadge"></span>
+          <span class="badge" id="availBadge"></span>
+        </div>
+      </div>
+
+      <div class="car-info">
+        <div class="car-title" id="carName"></div>
+        <div class="car-subtitle" id="carSub"></div>
+
+        <div class="specs-grid">
+          <div class="spec-item">
+            <span class="spec-label">Year</span>
+            <span class="spec-value" id="specYear">—</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Fuel</span>
+            <span class="spec-value" id="specFuel">—</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Mileage</span>
+            <span class="spec-value" id="specMileage">—</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">In Store</span>
+            <span class="spec-value" id="specStore">—</span>
+          </div>
+        </div>
+
+        <div class="desc-block">
+          <p id="specDesc"></p>
+        </div>
+
+        <div class="price-strip">
+          <div>
+            <div class="label">Rental Rate</div>
+            <div class="amount">$<span id="specPrice"></span></div>
+            <div class="per">per day</div>
+          </div>
+          <div class="stock">
+            <span id="stockLine"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: BOOKING FORM ── -->
+    <div class="form-panel">
+
+      <!-- AVAILABLE STATE -->
+      <div id="formState">
+        <div class="form-heading">BOOK THIS VEHICLE</div>
+        <div class="form-sub">Fill in your details to complete the reservation</div>
+        <div class="form-divider"></div>
+
+        <form id="reservationForm">
+
+          <!-- Customer Info -->
+          <div class="field">
+            <label>Full Name</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                <circle cx="10" cy="7" r="3.5" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                <path d="M3 17c0-3.5 3-5.5 7-5.5s7 2 7 5.5" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <input id="name" type="text" class="r-input" placeholder="Maria Afroz" required autocomplete="name"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Email Address</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                <path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                <path d="M2.5 6l7.5 5.5L17.5 6" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <input id="email" type="email" class="r-input" placeholder="you@example.com" required autocomplete="email"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Driver's License Number</label>
+            <div class="input-wrap">
+              <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                <rect x="2" y="5" width="16" height="11" rx="2" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                <circle cx="7" cy="10.5" r="2" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                <path d="M11 9h4M11 12h3" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <input id="license" type="text" class="r-input" placeholder="License #" required autocomplete="off"/>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field" style="margin-bottom:0">
+              <label>Start Date</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                  <rect x="3" y="4" width="14" height="13" rx="2" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                  <path d="M7 2v4M13 2v4M3 9h14" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input id="startDate" type="date" class="r-input" required/>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label>Number of Days</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                  <circle cx="10" cy="10" r="7" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2"/>
+                  <path d="M10 6v4l2.5 2.5" stroke="#D4AF37" stroke-opacity=".5" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input id="days" type="number" class="r-input" placeholder="e.g. 3" min="1" required/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cost Summary -->
+          <div class="cost-box">
+            <div class="cost-row">
+              <span>Price per day</span>
+              <span>$<span id="priceDisplay">—</span></span>
+            </div>
+            <div class="cost-row">
+              <span>Number of days</span>
+              <span id="daysDisplay">—</span>
+            </div>
+            <div class="cost-row total">
+              <span>Total Cost</span>
+              <span class="val">$<span id="totalPrice">0</span></span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            CONFIRM RESERVATION
+            <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="#06060f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- UNAVAILABLE STATE -->
+      <div id="unavailState" class="unavail-state" style="display:none;">
+        <svg viewBox="0 0 64 64" fill="none" width="52" height="52" style="display:block;">
+          <circle cx="32" cy="32" r="28" stroke="rgba(247,55,79,0.6)" stroke-width="2"/>
+          <path d="M20 20l24 24M44 20L20 44" stroke="rgba(247,55,79,0.8)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <h3>VEHICLE UNAVAILABLE</h3>
+        <p>This car is currently out of stock.<br>Browse our fleet to find another vehicle.</p>
+        <a href="home.html" class="back-link">
+          <svg viewBox="0 0 16 16" fill="none" width="12" height="12"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Back to Fleet
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+      authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+      projectId: "vortrexyn-car-rental-system",
+      storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+      messagingSenderId: "212497343971",
+      appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+    });
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+  </script>
+
+  <script>
+    // ── READ VIN FROM URL HASH ──────────────────────────────────────────────
+    // The home.html page appends the car's VIN as a URL hash (e.g. #ABC123).
+    // We use the hash instead of a query parameter because query parameters
+    // can be stripped by certain proxies or server redirects.
+    const selectedVin = decodeURIComponent(window.location.hash.slice(1)) || null;
+
+    if (!selectedVin) {
+      // No VIN means the user navigated directly without selecting a car
+      document.getElementById('pageWrap').innerHTML = `
+        <div class="no-car" style="grid-column:1/-1;">
+          <p>No vehicle selected. Please go back to the fleet and choose a car.</p>
+          <a href="home.html" class="back-link">← Back to Fleet</a>
+        </div>`;
+    } else {
+      // ── INIT: Load car data and render the reservation form ────────────────
+      // This async function:
+      //   1. Waits for Firebase auth to resolve (redirect to login if unauthenticated)
+      //   2. Loads cars.json, stock overrides, the user's profile, and custom cars in parallel
+      //   3. Finds the selected car by VIN, applies any stock override
+      //   4. Populates the form fields with car details and the user's saved profile
+      //   5. Wires up the live cost calculator and the form submit handler
+      async function init() {
+        try {
+          // Wait for Firebase auth to determine whether the user is signed in.
+          // onAuthStateChanged fires once immediately with null or the current user.
+          const user = await new Promise(resolve => auth.onAuthStateChanged(resolve));
+          if (!user) { window.location.href = '../index.html'; return; } // Must be logged in
+
+          // Fetch all data sources simultaneously
+          const [jsonRes, overrideSnap, profileSnap, customSnap] = await Promise.all([
+            fetch('../data/cars.json').then(r => r.json()),             // Base fleet
+            db.collection('fleetOverrides').doc('overrides').get().catch(() => null), // Stock overrides
+            db.collection('users').doc(user.uid).get().catch(() => null),             // User profile for pre-fill
+            db.collection('customCars').get().catch(() => null)                       // Admin custom cars
+          ]);
+
+          const overrides   = (overrideSnap && overrideSnap.exists) ? overrideSnap.data() : {};
+          const customCars  = customSnap ? customSnap.docs.map(d => d.data()) : [];
+
+          // Merge JSON fleet and custom cars into a single array to search
+          const allCarsList = [...jsonRes.cars, ...customCars];
+          const rawCar = allCarsList.find(c => c.vin === selectedVin);
+
+          if (!rawCar) {
+            // VIN in the hash doesn't match any known car
+            document.getElementById('pageWrap').innerHTML = `
+              <div class="no-car" style="grid-column:1/-1;">
+                <p>Vehicle not found. Please go back and choose a car.</p>
+                <a href="home.html" class="back-link">← Back to Fleet</a>
+              </div>`;
+            return;
+          }
+
+          // Apply admin stock override if one exists for this VIN
+          const adjusted = overrides[rawCar.vin];
+          const car = adjusted !== undefined
+            ? { ...rawCar, inStore: Math.max(0, adjusted), available: adjusted > 0 }
+            : rawCar;
+
+          // ── Populate car detail panel ──────────────────────────────────────
+          document.getElementById('carImage').src   = car.image || '../assets/sedan.png';
+          document.getElementById('carName').textContent = `${car.brand} ${car.carModel}`;
+          document.getElementById('carSub').textContent  = `${car.yearOfManufacture} · ${car.carType} · ${car.fuelType}`;
+
+          document.getElementById('typeBadge').textContent = car.carType.toUpperCase();
+          const availBadge = document.getElementById('availBadge');
+          availBadge.textContent = car.available ? 'AVAILABLE' : 'UNAVAILABLE';
+          availBadge.className   = 'badge ' + (car.available ? 'badge-avail' : 'badge-unavail');
+
+          document.getElementById('specYear').textContent    = car.yearOfManufacture;
+          document.getElementById('specFuel').textContent    = car.fuelType;
+          document.getElementById('specMileage').textContent = car.mileage;
+          document.getElementById('specStore').textContent   = `${car.inStore} unit${car.inStore !== 1 ? 's' : ''}`;
+          document.getElementById('specDesc').textContent    = car.description;
+          document.getElementById('specPrice').textContent   = car.pricePerDay;
+          document.getElementById('priceDisplay').textContent = car.pricePerDay;
+          document.getElementById('stockLine').innerHTML = car.available
+            ? `<strong>${car.inStore}</strong> units available`
+            : `<span style="color:rgba(247,55,79,.7)">Out of stock</span>`;
+
+          // ── Show form or "Unavailable" message ────────────────────────────
+          // If the car has no stock, hide the booking form and show the out-of-stock panel
+          if (!car.available) {
+            document.getElementById('formState').style.display  = 'none';
+            document.getElementById('unavailState').style.display = 'block';
+          }
+
+          // ── Pre-fill customer fields from Firestore profile ───────────────
+          // Reduces friction by auto-filling name, email, and license from the saved profile
+          if (profileSnap && profileSnap.exists) {
+            const p = profileSnap.data();
+            document.getElementById('name').value    = p.name    || '';
+            document.getElementById('email').value   = p.email   || user.email || '';
+            document.getElementById('license').value = p.license || '';
+          } else {
+            // No profile doc — at minimum fill in the auth email
+            document.getElementById('email').value = user.email || '';
+          }
+
+          // ── Minimum start date = today ─────────────────────────────────────
+          // Prevents users from selecting a past date in the date picker
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('startDate').min   = today;
+          document.getElementById('startDate').value = today; // Default to today
+
+          // ── Live cost calculator ───────────────────────────────────────────
+          // Recalculates the total price whenever the user changes the number of days
+          function updateCost() {
+            const days  = parseInt(document.getElementById('days').value) || 0;
+            const total = car.pricePerDay * days;
+            document.getElementById('daysDisplay').textContent = days || '—';
+            document.getElementById('totalPrice').textContent  = days ? total : '0';
+          }
+          document.getElementById('days').addEventListener('input', updateCost);
+
+          // ── Form submit: save pending order to Firestore ───────────────────
+          // Creates a 'pendingOrders' document keyed to the user's UID.
+          // The admin must approve this order before the user can pay.
+          // After saving, we navigate to the confirmation page.
+          document.getElementById('reservationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+
+            // Build the reservation object — mirrors the structure expected by admin.html and myReservations.html
+            const reservation = {
+              customer: {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phoneNumber: '',
+                driversLicenseNumber: document.getElementById('license').value
+              },
+              car: {
+                vin: car.vin, brand: car.brand, carModel: car.carModel,
+                carType: car.carType, fuelType: car.fuelType,
+                yearOfManufacture: car.yearOfManufacture, mileage: car.mileage,
+                pricePerDay: car.pricePerDay, description: car.description,
+                image: car.image, inStore: car.inStore
+              },
+              rental: {
+                startDate: document.getElementById('startDate').value,
+                rentalPeriod: parseInt(document.getElementById('days').value),
+                totalPrice: parseInt(document.getElementById('totalPrice').textContent),
+                orderDate: new Date().toISOString().split('T')[0] // ISO date string e.g. "2025-04-22"
+              }
+            };
+
+            // Write to 'pendingOrders' collection. Using the user's UID as the doc ID
+            // means each user can have at most one pending booking at a time.
+            await db.collection('pendingOrders').doc(user.uid).set(reservation);
+            window.location.href = 'orderConfirmation.html';
+          });
+
+        } catch(err) {
+          console.error(err);
+          document.getElementById('pageWrap').innerHTML = `
+            <div class="no-car" style="grid-column:1/-1;">
+              <p>Something went wrong loading this vehicle. Please go back and try again.</p>
+              <a href="home.html" class="back-link">← Back to Fleet</a>
+            </div>`;
+        }
+      }
+      init();
+    }
+  </script>
+</body>
+</html>

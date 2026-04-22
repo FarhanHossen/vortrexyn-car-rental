@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confirm Order | VORTREXYN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #06060f;
+      --bg2:     #080814;
+      --surface: #0d0d1c;
+      --border:  rgba(255,255,255,.07);
+      --gold:    #D4AF37;
+      --gold-lt: #F5D060;
+      --text:    rgba(255,255,255,.88);
+      --muted:   rgba(255,255,255,.38);
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+      background: rgba(6,6,15,.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo svg { width: 36px; height: 36px; }
+    .nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .nav-logo-text span:first-child {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.15rem;
+      font-weight: 700; letter-spacing: .18em;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-logo-text span:last-child {
+      font-size: .48rem; letter-spacing: .22em;
+      color: rgba(212,175,55,.55); text-transform: uppercase;
+    }
+    .nav-back {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .72rem; font-weight: 600; letter-spacing: .1em;
+      color: var(--muted); text-decoration: none; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--gold); }
+    .nav-back svg { width: 14px; height: 14px; }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      min-height: calc(100vh - 64px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 48px 20px 80px;
+    }
+
+    /* ── CONFIRMATION CARD ── */
+    .card {
+      width: 100%; max-width: 780px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,.55);
+    }
+
+    /* ── CAR HERO ── */
+    .car-hero {
+      position: relative;
+      height: 300px;
+      background: #0a0a18;
+      overflow: hidden;
+    }
+    .car-hero img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .6s ease;
+    }
+    .car-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(6,6,15,.15) 0%,
+        rgba(6,6,15,.0)  40%,
+        rgba(6,6,15,.95) 100%
+      );
+    }
+    .car-hero-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 20px 28px 24px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .car-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.9rem; font-weight: 700;
+      line-height: 1; letter-spacing: .03em;
+    }
+    .car-subtitle {
+      font-size: .75rem; font-weight: 500;
+      color: rgba(255,255,255,.52); letter-spacing: .12em;
+      margin-top: 5px; text-transform: uppercase;
+    }
+    .car-price-badge {
+      text-align: right;
+    }
+    .car-price-badge .ppd {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .car-price-badge .ppd-label {
+      font-size: .6rem; letter-spacing: .12em;
+      color: var(--muted); text-transform: uppercase; display: block;
+    }
+    .car-type-pill {
+      display: inline-block;
+      padding: 3px 10px; border-radius: 999px;
+      background: rgba(212,175,55,.14);
+      border: 1px solid rgba(212,175,55,.3);
+      color: var(--gold); font-size: .58rem;
+      font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    }
+
+    /* ── STEP HEADER ── */
+    .step-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 24px 28px 0;
+    }
+    .step-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-icon svg { width: 18px; height: 18px; color: #06060f; }
+    .step-label { font-family: 'Rajdhani', sans-serif; }
+    .step-label h2 {
+      font-size: 1.15rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .step-label p { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── DIVIDER ── */
+    .gold-divider {
+      margin: 20px 28px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,175,55,.3), transparent);
+    }
+
+    /* ── DETAILS GRID ── */
+    .details-section {
+      padding: 0 28px;
+    }
+    .section-label {
+      font-size: .6rem; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--gold);
+      opacity: .7; margin-bottom: 14px;
+    }
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .detail-item {
+      display: flex; flex-direction: column; gap: 3px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .detail-item.full { grid-column: 1 / -1; }
+    .detail-label {
+      font-size: .58rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .detail-value {
+      font-size: .88rem; font-weight: 500; color: var(--text);
+    }
+    .detail-value.gold {
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700;
+    }
+
+    /* ── COST BREAKDOWN ── */
+    .cost-panel {
+      margin: 20px 28px 0;
+      background: rgba(212,175,55,.05);
+      border: 1px solid rgba(212,175,55,.15);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .cost-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: .8rem;
+    }
+    .cost-row:last-child { border-bottom: none; }
+    .cost-row .label { color: var(--muted); }
+    .cost-row .value { font-weight: 600; }
+    .cost-row.total {
+      background: rgba(212,175,55,.08);
+      padding: 14px 18px;
+    }
+    .cost-row.total .label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--text);
+    }
+    .cost-row.total .value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.4rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── NOTICE ── */
+    .notice {
+      margin: 16px 28px 0;
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px;
+      background: rgba(72,199,120,.06);
+      border: 1px solid rgba(72,199,120,.2);
+      border-radius: 10px;
+    }
+    .notice svg { width: 15px; height: 15px; color: #48c778; flex-shrink: 0; margin-top: 1px; }
+    .notice p { font-size: .72rem; color: rgba(72,199,120,.9); line-height: 1.5; }
+
+    /* ── ACTIONS ── */
+    .actions {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 12px;
+      padding: 24px 28px 28px;
+    }
+    .btn-back {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px;
+      padding: 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif; font-size: .75rem;
+      font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+    }
+    .btn-back:hover { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.7); }
+    .btn-confirm {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 15px 28px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+      border: none; border-radius: 10px;
+      color: #06060f;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem;
+      font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 8px 28px rgba(212,175,55,.28);
+    }
+    .btn-confirm:hover { opacity: .92; transform: translateY(-1px); box-shadow: 0 12px 36px rgba(212,175,55,.38); }
+    .btn-confirm:active { transform: translateY(0); }
+    .btn-confirm:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-confirm svg { width: 16px; height: 16px; }
+
+    /* ── LOADING STATE ── */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(6,6,15,.3);
+      border-top-color: #06060f;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(6,6,15,.92);
+      backdrop-filter: blur(12px);
+      align-items: center; justify-content: center; flex-direction: column;
+      gap: 20px; text-align: center; padding: 24px;
+    }
+    .success-overlay.show { display: flex; }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      display: flex; align-items: center; justify-content: center;
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn { from { transform: scale(.5); opacity:0; } to { transform: scale(1); opacity:1; } }
+    .success-icon svg { width: 36px; height: 36px; color: #06060f; }
+    .success-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2rem; font-weight: 700; letter-spacing: .1em;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .success-sub {
+      font-size: .85rem; color: var(--muted); max-width: 340px; line-height: 1.6;
+    }
+    .success-cta {
+      margin-top: 8px;
+      padding: 13px 36px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      border: none; border-radius: 10px;
+      color: #06060f;
+      font-family: 'Rajdhani', sans-serif; font-size: .95rem;
+      font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* ── ERROR STATE ── */
+    .error-msg {
+      display: none;
+      margin: 0 28px;
+      padding: 12px 14px;
+      background: rgba(247,55,79,.08);
+      border: 1px solid rgba(247,55,79,.25);
+      border-radius: 10px;
+      font-size: .75rem; color: rgba(247,55,79,.9);
+    }
+    .error-msg.show { display: block; }
+
+    /* ── NO DATA STATE ── */
+    .no-data {
+      padding: 60px 28px;
+      text-align: center;
+    }
+    .no-data svg { margin: 0 auto 16px; display: block; opacity: .25; }
+    .no-data h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .no-data p { font-size: .8rem; color: var(--muted); }
+
+    @media (max-width: 560px) {
+      .details-grid { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+      .car-hero { height: 220px; }
+      .car-title { font-size: 1.4rem; }
+    }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="home.html" class="nav-logo">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="24,2 46,13 46,35 24,46 2,35 2,13" fill="none" stroke="url(#ng)" stroke-width="1.5"/>
+      <polygon points="24,8 40,17 40,33 24,41 8,33 8,17" fill="rgba(212,175,55,0.07)" stroke="url(#ng)" stroke-width="1"/>
+      <path d="M15 30 L22 18 L24 24 L26 18 L33 30" stroke="url(#ng)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <defs>
+        <linearGradient id="ng" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#D4AF37"/>
+          <stop offset="100%" stop-color="#F5D060"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="nav-logo-text">
+      <span>VORTREXYN</span>
+      <span>Premium Car Rental</span>
+    </div>
+  </a>
+  <a href="reservations.html" class="nav-back">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 12L6 8l4-4"/>
+    </svg>
+    Edit Booking
+  </a>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page">
+  <div class="card" id="mainCard">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<!-- ── SUCCESS OVERLAY ── -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="success-title">BOOKING SUBMITTED</div>
+  <div class="success-sub">
+    Your reservation is <strong>pending admin approval</strong>. You will receive a confirmation email once it is approved. We look forward to serving you.
+  </div>
+  <button class="success-cta" onclick="window.location.href='myReservations.html'">View My Reservations</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCjZOpiWqTm57B6In0W0v6cM8zBh9IZ3HQ",
+    authDomain: "vortrexyn-car-rental-system.firebaseapp.com",
+    projectId: "vortrexyn-car-rental-system",
+    storageBucket: "vortrexyn-car-rental-system.firebasestorage.app",
+    messagingSenderId: "212497343971",
+    appId: "1:212497343971:web:29bdadf3b60c9628ce6cd6"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.firestore();
+</script>
+<script>
+  emailjs.init("T_E3Q6Fu5wJ5OmOMd");
+
+  // Reservation loaded from Firestore — set after auth resolves
+  let reservation = null;
+  const card = document.getElementById('mainCard');
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    return dt.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function calcEndDate(start, days) {
+    if (!start || !days) return '—';
+    const dt = new Date(start);
+    dt.setDate(dt.getDate() + parseInt(days));
+    return dt.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function showNoReservation() {
+    card.innerHTML = `
+      <div class="no-data">
+        <svg viewBox="0 0 64 64" fill="none" width="64" height="64">
+          <rect x="4" y="20" width="56" height="30" rx="6" stroke="#D4AF37" stroke-width="2"/>
+          <path d="M12 20l4-10h32l4 10" stroke="#D4AF37" stroke-width="2" stroke-linejoin="round"/>
+          <circle cx="16" cy="50" r="4" stroke="#D4AF37" stroke-width="2"/>
+          <circle cx="48" cy="50" r="4" stroke="#D4AF37" stroke-width="2"/>
+        </svg>
+        <h3>NO RESERVATION FOUND</h3>
+        <p>Please return to the fleet and select a vehicle to begin booking.</p>
+      </div>
+    `;
+  }
+
+  let currentUser = null;
+
+  auth.onAuthStateChanged(async function(user) {
+    if (!user) { window.location.href = '../index.html'; return; }
+    currentUser = user;
+
+    // Load pending order from Firestore
+    const snap = await db.collection('pendingOrders').doc(user.uid).get().catch(() => null);
+    if (!snap || !snap.exists) { showNoReservation(); return; }
+
+    reservation = snap.data();
+    renderCard(reservation);
+  });
+
+  function renderCard(reservation) {
+    const { customer, car, rental } = reservation;
+    const subtotal = (car.pricePerDay * rental.rentalPeriod).toFixed(2);
+    const tax      = (subtotal * 0.1).toFixed(2);
+    const total    = rental.totalPrice || (parseFloat(subtotal) + parseFloat(tax)).toFixed(2);
+    const imgSrc   = car.image || '../assets/sedan.png';
+    const endDate  = calcEndDate(rental.startDate, rental.rentalPeriod);
+
+    card.innerHTML = `
+      <!-- CAR HERO -->
+      <div class="car-hero">
+        <img src="${imgSrc}" alt="${car.brand} ${car.carModel}" onerror="this.src='../assets/sedan.png'"/>
+        <div class="car-hero-overlay"></div>
+        <div class="car-hero-info">
+          <div>
+            <div class="car-title">${car.brand} ${car.carModel}</div>
+            <div class="car-subtitle">${car.yearOfManufacture} &nbsp;·&nbsp; ${car.fuelType} &nbsp;·&nbsp; ${car.mileage}</div>
+          </div>
+          <div class="car-price-badge">
+            <span class="car-type-pill">${car.carType}</span>
+            <div class="ppd" style="margin-top:6px;">$${car.pricePerDay}<span style="font-size:.65rem;font-family:'Inter',sans-serif;font-weight:500;opacity:.7;">/day</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP HEADER -->
+      <div class="step-header">
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12l2 2 4-4"/>
+            <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+          </svg>
+        </div>
+        <div class="step-label">
+          <h2>Confirm Your Order</h2>
+          <p>Please review all details carefully before confirming your reservation</p>
+        </div>
+      </div>
+
+      <div class="gold-divider"></div>
+
+      <!-- CUSTOMER DETAILS -->
+      <div class="details-section">
+        <div class="section-label">Customer Information</div>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Full Name</div>
+            <div class="detail-value">${customer.name}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Email Address</div>
+            <div class="detail-value">${customer.email}</div>
+          </div>
+          <div class="detail-item full">
+            <div class="detail-label">Driver's License Number</div>
+            <div class="detail-value">${customer.driversLicenseNumber}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gold-divider"></div>
+
+      <!-- RENTAL DETAILS -->
+      <div class="details-section">
+        <div class="section-label">Rental Details</div>
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Pickup Date</div>
+            <div class="detail-value">${formatDate(rental.startDate)}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Return Date</div>
+            <div class="detail-value">${endDate}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Rental Duration</div>
+            <div class="detail-value">${rental.rentalPeriod} day${rental.rentalPeriod > 1 ? 's' : ''}</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Daily Rate</div>
+            <div class="detail-value gold">$${car.pricePerDay} / day</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gold-divider"></div>
+
+      <!-- COST BREAKDOWN -->
+      <div class="details-section">
+        <div class="section-label">Cost Breakdown</div>
+      </div>
+      <div class="cost-panel">
+        <div class="cost-row">
+          <span class="label">Rental (${rental.rentalPeriod} day${rental.rentalPeriod > 1 ? 's' : ''} × $${car.pricePerDay})</span>
+          <span class="value">$${subtotal}</span>
+        </div>
+        <div class="cost-row">
+          <span class="label">GST (10%)</span>
+          <span class="value">$${tax}</span>
+        </div>
+        <div class="cost-row total">
+          <span class="label">Total Payable</span>
+          <span class="value">$${total}</span>
+        </div>
+      </div>
+
+      <!-- NOTICE -->
+      <div class="notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>By confirming, you agree to our rental terms. Your booking will be submitted for admin approval — you will receive a confirmation email at <strong>${customer.email}</strong> once approved. Payment is collected at vehicle pickup.</p>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <a href="reservations.html" class="btn-back">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 12L6 8l4-4"/>
+          </svg>
+          Go Back
+        </a>
+        <button class="btn-confirm" id="confirmBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Confirm &amp; Book Now
+        </button>
+      </div>
+    `;
+
+    document.getElementById('confirmBtn').addEventListener('click', async function () {
+      const btn = this;
+      const errorMsg = document.getElementById('errorMsg');
+      errorMsg.classList.remove('show');
+      btn.disabled = true;
+      btn.innerHTML = `<div class="spinner"></div> Processing...`;
+
+      const templateParams = {
+        to_name:       customer.name,
+        email:         customer.email,
+        license:       customer.driversLicenseNumber,
+        car_model:     `${car.brand} ${car.carModel}`,
+        car_type:      car.carType,
+        fuel:          car.fuelType,
+        year:          car.yearOfManufacture,
+        mileage:       car.mileage,
+        price_per_day: car.pricePerDay,
+        start_date:    formatDate(rental.startDate),
+        rental_days:   rental.rentalPeriod,
+        total:         total
+      };
+
+      try {
+        const user = currentUser;
+        // 1. Save booking to Firestore with 'pending' status (awaits admin approval)
+        await db.collection('orders').add({
+          ...reservation,
+          userName:  customer.name,
+          userEmail: customer.email,
+          userId:    user ? user.uid : null,
+          status:    'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 2. Decrement fleet stock in Firestore
+        const ovRef  = db.collection('fleetOverrides').doc('overrides');
+        const ovSnap = await ovRef.get();
+        const ov     = ovSnap.exists ? ovSnap.data() : {};
+        const curStock = ov[car.vin] !== undefined ? ov[car.vin] : car.inStore;
+        await ovRef.set({ [car.vin]: Math.max(0, curStock - 1) }, { merge: true });
+
+        // 3. Remove the pending order
+        if (user) {
+          await db.collection('pendingOrders').doc(user.uid).delete().catch(() => {});
+        }
+      } catch(e) {
+        console.warn('Firestore save error:', e.message);
+      }
+
+      // No email sent here — admin must approve first, then confirmation email is sent
+      document.getElementById('successOverlay').classList.add('show');
+    });
+  }
+</script>
+</body>
+</html>

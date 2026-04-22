@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "firebase": "^11.8.1",
+    "serve": "^14.2.6"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}
