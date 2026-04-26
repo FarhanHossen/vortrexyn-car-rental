@@ -1,8 +1,54 @@
 # VORTREXYN — Premium Car Rental System
 
-## Overview
-
 A full-stack multi-page web application for a premium car rental service. Users can browse vehicles, make reservations, and pay online. An admin dashboard allows staff to manage bookings, fleet stock, and custom vehicles with AI-generated images.
+
+---
+
+## Screenshots
+
+### Login
+![Login](screenshots/01-login.png)
+
+### Sign Up
+![Sign Up](screenshots/02-signup.png)
+
+### Forgot Password
+![Forgot Password](screenshots/03-forgot-password.png)
+
+### Home — Fleet Browse
+![Home](screenshots/04-home.png)
+
+### Reservations — Booking Form
+![Reservations](screenshots/05-reservations.png)
+
+### Order Confirmation
+![Order Confirmation](screenshots/06-order-confirmation.png)
+
+### My Reservations
+![My Reservations](screenshots/07-my-reservations.png)
+
+### Profile
+![Profile](screenshots/08-profile.png)
+
+### Admin — Overview
+![Admin Overview](screenshots/09-admin-overview.png)
+
+### Admin — All Bookings
+![Admin Bookings](screenshots/10-admin-bookings.png)
+
+### Admin — Fleet Inventory
+![Admin Fleet](screenshots/11-admin-fleet.png)
+
+### Admin — All Users
+![Admin Users](screenshots/12-admin-users.png)
+
+### Admin — Revenue Stats
+![Admin Revenue](screenshots/13-admin-revenue.png)
+
+### Admin — Add Vehicle (AI)
+![Admin Add Vehicle](screenshots/14-admin-add-vehicle.png)
+
+---
 
 ## Tech Stack
 
@@ -32,6 +78,7 @@ A full-stack multi-page web application for a premium car rental service. Users 
 │   ├── signup.html               # Registration
 │   └── forgot.html               # Password reset
 ├── assets/                       # Images (car photos, backgrounds, logo)
+├── screenshots/                  # Page screenshots for documentation
 ├── data/
 │   └── cars.json                 # 625-car catalog
 └── package.json
